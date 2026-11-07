@@ -1,0 +1,206 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+    <Setter Property="FontSize" Value="{StaticResource FontBody}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="FontFeatures" Value="+tnum" />
+  </Style>
+  <Style Selector="TextBlock.dim"><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /></Style>
+  <Style Selector="TextBlock.small"><Setter Property="FontSize" Value="{StaticResource FontSmall}" /></Style>
+  <Style Selector="TextBlock.tiny"><Setter Property="FontSize" Value="{StaticResource FontTiny}" /></Style>
+  <Style Selector="TextBlock.title"><Setter Property="FontSize" Value="{StaticResource FontTitle}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <Style Selector="TextBlock.big"><Setter Property="FontSize" Value="{StaticResource FontBig}" /><Setter Property="FontWeight" Value="ExtraBold" /></Style>
+  <Style Selector="TextBlock.bold"><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <Style Selector="TextBlock.one"><Setter Property="TextWrapping" Value="NoWrap" /><Setter Property="TextTrimming" Value="CharacterEllipsis" /></Style>
+  <Style Selector="TextBlock.accent"><Setter Property="Foreground" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="TextBlock.coral"><Setter Property="Foreground" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="TextBlock.warn"><Setter Property="Foreground" Value="{StaticResource WarnBrush}" /></Style>
+  <Style Selector="TextBlock.section">
+    <Setter Property="Foreground" Value="{StaticResource TextDimBrush}" />
+    <Setter Property="FontSize" Value="{StaticResource FontSmall}" />
+    <Setter Property="Margin" Value="0,10,0,4" />
+  </Style>
+
+  <Style Selector="Border.panel">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusPanel}" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+  </Style>
+  <Style Selector="Border.line"><Setter Property="Background" Value="{StaticResource LineBrush}" /><Setter Property="Height" Value="1" /></Style>
+
+  <!-- The signature: every row leads with a tile. Filled means measured or known; outlined means a rule's guess. -->
+  <Style Selector="Border.tile">
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="40" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource TextDimBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.tile TextBlock">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="ExtraBold" />
+    <Setter Property="TextWrapping" Value="NoWrap" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.tile.large"><Setter Property="Width" Value="64" /><Setter Property="Height" Value="64" /></Style>
+  <Style Selector="Border.tile.large TextBlock"><Setter Property="FontSize" Value="{StaticResource FontBig}" /></Style>
+  <Style Selector="Border.tile.mini"><Setter Property="Width" Value="34" /><Setter Property="Height" Value="24" /><Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" /></Style>
+  <Style Selector="Border.tile.mini TextBlock"><Setter Property="FontSize" Value="{StaticResource FontSmall}" /></Style>
+  <Style Selector="Border.tile.none TextBlock"><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /></Style>
+  <Style Selector="Border.tile.lime"><Setter Property="Background" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.tile.lime TextBlock"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
+  <Style Selector="Border.tile.coral"><Setter Property="Background" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="Border.tile.coral TextBlock"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
+  <Style Selector="Border.tile.outline"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="1.5" /></Style>
+  <Style Selector="Border.tile.outline TextBlock"><Setter Property="Foreground" Value="{StaticResource TextBrush}" /></Style>
+  <Style Selector="Border.tile.outline.lime"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.tile.outline.lime TextBlock"><Setter Property="Foreground" Value="{StaticResource AccentBrush}" /></Style>
+
+  <!-- A card named by a chip: name and tavern tier. Lime is "in the shop right now". -->
+  <Style Selector="Border.chip">
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" />
+    <Setter Property="Padding" Value="7,3" />
+    <Setter Property="Margin" Value="0,0,4,4" />
+  </Style>
+  <Style Selector="Border.chip TextBlock"><Setter Property="FontSize" Value="{StaticResource FontSmall}" /><Setter Property="TextWrapping" Value="NoWrap" /></Style>
+  <Style Selector="Border.chip.buy"><Setter Property="Background" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.chip.buy TextBlock"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+
+  <Style Selector="Border.pill">
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="9,3" />
+    <Setter Property="Margin" Value="0,0,4,4" />
+  </Style>
+  <Style Selector="Border.pill:pointerover"><Setter Property="Background" Value="{StaticResource HoverBrush}" /></Style>
+  <Style Selector="Border.pill TextBlock"><Setter Property="FontSize" Value="{StaticResource FontTiny}" /><Setter Property="TextWrapping" Value="NoWrap" /></Style>
+
+  <Style Selector="Border.beta">
+    <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="7,1" />
+  </Style>
+  <Style Selector="Border.beta TextBlock"><Setter Property="Foreground" Value="{StaticResource WarnBrush}" /><Setter Property="FontSize" Value="{StaticResource FontTiny}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+
+  <Style Selector="Path.icon">
+    <Setter Property="Stroke" Value="{StaticResource TextDimBrush}" />
+    <Setter Property="StrokeThickness" Value="1.6" />
+    <Setter Property="StrokeLineCap" Value="Round" />
+    <Setter Property="StrokeJoin" Value="Round" />
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+  </Style>
+
+  <Style Selector="Button">
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+    <Setter Property="FontSize" Value="{StaticResource FontSmall}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="12,7" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Button:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource HoverBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+  </Style>
+  <Style Selector="Button:pressed /template/ ContentPresenter"><Setter Property="Background" Value="{StaticResource LineBrush}" /></Style>
+  <Style Selector="Button:disabled"><Setter Property="Opacity" Value="0.45" /></Style>
+  <Style Selector="Button:disabled /template/ ContentPresenter"><Setter Property="Background" Value="{StaticResource RaisedBrush}" /></Style>
+
+  <Style Selector="Button.primary"><Setter Property="Background" Value="{StaticResource AccentBrush}" /><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="{StaticResource AccentBrush}" /><Setter Property="Foreground" Value="{StaticResource InkBrush}" /><Setter Property="Opacity" Value="0.9" /></Style>
+  <Style Selector="Button.primary:pressed /template/ ContentPresenter"><Setter Property="Background" Value="{StaticResource AccentBrush}" /></Style>
+
+  <Style Selector="Button.icon">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="5" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" />
+  </Style>
+  <Style Selector="Button.icon:pointerover Path.icon"><Setter Property="Stroke" Value="{StaticResource TextBrush}" /></Style>
+  <Style Selector="Button.icon.ready Path.icon"><Setter Property="Stroke" Value="{StaticResource AccentBrush}" /></Style>
+
+  <!-- A whole row you can press. -->
+  <Style Selector="Button.row">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="4,3" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+  </Style>
+  <Style Selector="Button.row.sel"><Setter Property="Background" Value="{StaticResource RaisedBrush}" /></Style>
+
+  <!-- Segmented switch: the panel's pages and the main window's tabs. -->
+  <Style Selector="Button.tab">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource TextDimBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" />
+    <Setter Property="Padding" Value="10,4" />
+  </Style>
+  <Style Selector="Button.tab.selected"><Setter Property="Background" Value="{StaticResource RaisedBrush}" /><Setter Property="Foreground" Value="{StaticResource TextBrush}" /></Style>
+  <Style Selector="Button.tab:pointerover /template/ ContentPresenter"><Setter Property="Foreground" Value="{StaticResource TextBrush}" /></Style>
+
+  <!-- Tribe toggle. -->
+  <Style Selector="Button.tribe">
+    <Setter Property="Padding" Value="9,5" />
+    <Setter Property="Margin" Value="0,0,4,4" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+  <Style Selector="Button.tribe.absent"><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /></Style>
+  <Style Selector="Button.tribe.absent TextBlock"><Setter Property="TextDecorations" Value="Strikethrough" /></Style>
+
+  <Style Selector="ToolTip">
+    <Setter Property="Background" Value="{StaticResource SurfaceSolidBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="FontSize" Value="{StaticResource FontSmall}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="10,8" />
+    <Setter Property="MaxWidth" Value="340" />
+  </Style>
+  <Style Selector="ToolTip TextBlock"><Setter Property="TextWrapping" Value="Wrap" /></Style>
+
+  <Style Selector="TextBox">
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+    <Setter Property="FontSize" Value="{StaticResource FontBody}" />
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="10,7" />
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+    <Setter Property="FontSize" Value="{StaticResource FontSmall}" />
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="MinHeight" Value="32" />
+  </Style>
+  <Style Selector="ScrollViewer"><Setter Property="AllowAutoHide" Value="True" /></Style>
+
+  <!-- Status dot: amber = unknown or waiting, lime = working, coral = broken. -->
+  <Style Selector="Border.dot">
+    <Setter Property="Width" Value="8" />
+    <Setter Property="Height" Value="8" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="{StaticResource WarnBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.dot.ok"><Setter Property="Background" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.dot.bad"><Setter Property="Background" Value="{StaticResource LossBrush}" /></Style>
+</Styles>

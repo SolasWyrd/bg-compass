@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.HeroView"
+             x:DataType="vm:HeroVm">
+  <StackPanel Spacing="4">
+    <TextBlock Text="{Binding Empty}" Classes="dim" IsVisible="{Binding HasEmpty}" />
+    <ItemsControl ItemsSource="{Binding Offers}">
+      <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:HeroOfferVm">
+        <Border Background="Transparent" Margin="0,0,0,6" ToolTip.Tip="{Binding Tip}">
+          <Grid ColumnDefinitions="Auto,*">
+            <Border Classes="tile" Classes.none="{Binding !HasStats}" Classes.lime="{Binding IsRecommended}" Classes.outline="{Binding IsGuess}">
+              <TextBlock Text="{Binding Tile}" />
+            </Border>
+            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Name}" Classes="bold one" Classes.accent="{Binding IsRecommended}" />
+              <TextBlock Text="{Binding Sub}" Classes="dim small one" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </DataTemplate></ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

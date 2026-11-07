@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.TribesView"
+             x:DataType="vm:TopBarVm">
+  <ItemsControl ItemsSource="{Binding Chips}">
+    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:TribeChipVm">
+      <Button Classes="tribe" Classes.absent="{Binding IsAbsent}" Command="{Binding Toggle}" ToolTip.Tip="{Binding Tip}">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Ellipse Width="7" Height="7" Fill="{StaticResource AccentBrush}" IsVisible="{Binding IsConfirmed}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding Label}" Classes="small" TextWrapping="NoWrap" />
+        </StackPanel>
+      </Button>
+    </DataTemplate></ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

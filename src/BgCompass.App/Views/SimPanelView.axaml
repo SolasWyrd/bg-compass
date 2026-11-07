@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.SimPanelView"
+             x:DataType="vm:SimVm">
+  <StackPanel Spacing="8">
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBlock Text="{Binding Headline}" Classes="small dim one" VerticalAlignment="Center" ToolTip.Tip="{Binding Note}" />
+      <Border Grid.Column="1" Classes="beta" Margin="8,0,0,0" ToolTip.Tip="{Binding LimitsText}"><TextBlock Text="бета" /></Border>
+    </Grid>
+    <StackPanel IsVisible="{Binding HasResult}" Spacing="8" ToolTip.Tip="{Binding Note}">
+      <Grid ColumnDefinitions="*,*,*">
+        <StackPanel>
+          <TextBlock Text="{Binding WinText}" Classes="big accent" />
+          <TextBlock Text="победа" Classes="small dim" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+          <TextBlock Text="{Binding TieText}" Classes="big" Foreground="{StaticResource TextDimBrush}" HorizontalAlignment="Center" />
+          <TextBlock Text="ничья" Classes="small dim" HorizontalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+          <TextBlock Text="{Binding LossText}" Classes="big coral" HorizontalAlignment="Right" />
+          <TextBlock Text="поражение" Classes="small dim" HorizontalAlignment="Right" />
+        </StackPanel>
+      </Grid>
+      <Border CornerRadius="4" ClipToBounds="True" Height="8">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding WinCol}" />
+            <ColumnDefinition Width="{Binding TieCol}" />
+            <ColumnDefinition Width="{Binding LossCol}" />
+          </Grid.ColumnDefinitions>
+          <Border Background="{StaticResource WinBrush}" />
+          <Border Grid.Column="1" Background="{StaticResource TieBrush}" />
+          <Border Grid.Column="2" Background="{StaticResource LossBrush}" />
+        </Grid>
+      </Border>
+      <ItemsControl ItemsSource="{Binding Facts}">
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:SimFactVm">
+          <Grid ColumnDefinitions="*,Auto" Margin="0,1" ToolTip.Tip="{Binding Tip}">
+            <TextBlock Text="{Binding Label}" Classes="small dim" />
+            <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="small bold" Classes.coral="{Binding IsAlert}" />
+          </Grid>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+    <TextBlock Text="{Binding Message}" Classes="dim" IsVisible="{Binding HasMessage}" />
+  </StackPanel>
+</UserControl>

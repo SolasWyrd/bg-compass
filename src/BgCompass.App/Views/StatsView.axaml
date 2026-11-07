@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.StatsView"
+             x:DataType="vm:StatsVm">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="20,6,20,20" MaxWidth="1100">
+      <TextBlock Text="Ваши партии из лога · без MMR" Classes="dim small" ToolTip.Tip="{Binding MmrNote}" />
+      <TextBlock Text="{Binding Empty}" Classes="dim" IsVisible="{Binding HasEmpty}" Margin="0,12,0,0" />
+      <StackPanel IsVisible="{Binding HasData}">
+        <TextBlock Text="{Binding Totals}" Classes="dim" IsVisible="{Binding HasTotals}" Margin="0,8,0,0" />
+        <UniformGrid Columns="4" IsVisible="{Binding HasSummary}" Margin="0,10,0,0">
+          <Border Classes="card" Padding="14,10" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding SumGames}" Classes="big" /><TextBlock Text="партий" Classes="dim small" /></StackPanel>
+          </Border>
+          <Border Classes="card" Padding="14,10" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding SumAverage}" Classes="big accent" /><TextBlock Text="среднее место" Classes="dim small" /></StackPanel>
+          </Border>
+          <Border Classes="card" Padding="14,10" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding SumTop4}" Classes="big" /><TextBlock Text="топ-4" Classes="dim small" /></StackPanel>
+          </Border>
+          <Border Classes="card" Padding="14,10">
+            <StackPanel><TextBlock Text="{Binding SumWins}" Classes="big" /><TextBlock Text="побед" Classes="dim small" /></StackPanel>
+          </Border>
+        </UniformGrid>
+
+        <TextBlock Text="Герои" Classes="section" Margin="0,16,0,6" />
+        <ItemsControl ItemsSource="{Binding Heroes}">
+          <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:HeroRowVm">
+            <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,6" Background="Transparent" ToolTip.Tip="{Binding Small}">
+              <Border Classes="tile" Classes.lime="{Binding IsGood}" Classes.coral="{Binding IsBad}"><TextBlock Text="{Binding Tile}" /></Border>
+              <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Name}" Classes="bold one" />
+                <TextBlock Text="{Binding Sub}" Classes="dim small one" />
+              </StackPanel>
+            </Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Text="Направления" Classes="section" Margin="0,16,0,6" />
+        <ItemsControl ItemsSource="{Binding Builds}">
+          <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:BuildRowVm">
+            <Grid ColumnDefinitions="Auto,*,120" Margin="0,0,0,6">
+              <Border Classes="tile" Classes.lime="{Binding IsGood}" Classes.coral="{Binding IsBad}"><TextBlock Text="{Binding Tile}" /></Border>
+              <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Name}" Classes="bold one" />
+                <TextBlock Text="{Binding Sub}" Classes="dim small one" />
+              </StackPanel>
+              <ProgressBar Grid.Column="2" Minimum="0" Maximum="1" Value="{Binding Share}" Height="4" MinHeight="4" VerticalAlignment="Center"
+                           Foreground="{StaticResource AccentBrush}" Background="{StaticResource LineBrush}" CornerRadius="2"
+                           ToolTip.Tip="Как часто вы собираете это направление" />
+            </Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Text="Партии" Classes="section" Margin="0,16,0,6" />
+        <ItemsControl ItemsSource="{Binding Games}">
+          <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:GameRowVm">
+            <Grid ColumnDefinitions="Auto,*,*,Auto" Margin="0,0,0,4" Background="Transparent" ToolTip.Tip="{Binding Tip}">
+              <Border Classes="tile mini" Classes.lime="{Binding IsTop4}" Classes.coral="{Binding IsLoss}" Classes.none="{Binding !HasPlace}">
+                <TextBlock Text="{Binding Place}" />
+              </Border>
+              <TextBlock Grid.Column="1" Text="{Binding Hero}" Classes="one" VerticalAlignment="Center" Margin="12,0" />
+              <TextBlock Grid.Column="2" Text="{Binding Build}" Classes="dim small one" VerticalAlignment="Center" Margin="0,0,12,0" />
+              <TextBlock Grid.Column="3" Text="{Binding When}" Classes="dim small" TextWrapping="NoWrap" VerticalAlignment="Center" />
+            </Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

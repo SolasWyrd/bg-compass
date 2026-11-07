@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.GameOverView"
+             x:DataType="vm:GameOverVm">
+  <Grid ColumnDefinitions="Auto,*,Auto" ToolTip.Tip="{Binding Note}">
+    <Border Classes="tile large" Classes.lime="{Binding IsTop}" Classes.coral="{Binding IsBottom}" Classes.none="{Binding !HasPlace}"><TextBlock Text="{Binding Place}" /></Border>
+    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Hero}" Classes="title one" />
+      <TextBlock Text="{Binding Rounds}" Classes="dim small" />
+    </StackPanel>
+    <Button Grid.Column="2" Classes="icon" Command="{Binding Dismiss}" VerticalAlignment="Top" ToolTip.Tip="Закрыть">
+      <Path Classes="icon" Data="{StaticResource IconClose}" />
+    </Button>
+  </Grid>
+</UserControl>

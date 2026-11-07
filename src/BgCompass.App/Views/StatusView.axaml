@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.StatusView"
+             x:DataType="vm:StatusVm">
+  <Grid ColumnDefinitions="*,Auto" ToolTip.Tip="{Binding Tip}">
+    <TextBlock Text="{Binding Title}" Classes="bold" VerticalAlignment="Center" />
+    <Button Grid.Column="1" Classes="primary" Content="Настройки" Command="{Binding Open}" />
+  </Grid>
+</UserControl>

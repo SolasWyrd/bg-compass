@@ -1,0 +1,223 @@
+{
+  "updated": "2026-11-06",
+  "note": "Archetype families defined by ROLES, never by card lists: a card carries a role when one of its mechanics is listed or its English text matches the regex (case-insensitive). Tribe families only count minions of their tribe, minions of every tribe (ALL) and, for roles marked neutral, tribeless minions. The cards shown are always taken from the live pool, so they follow the patch. Core roles are the engine of the build, support roles are what is layered on top. Adapted from bgtracker data/comp_roles.json (MIT) and re-checked against the card pool of build 256589. This is an editor's opinion about how builds work, not a statistic.",
+  "families": [
+    {
+      "id": "murloc",
+      "name": "Мурлоки: свойства и боевые кличи",
+      "plan": "Собирайте мурлоков, которые дают яд и бонусные свойства, и повторяйте боевые кличи, чтобы усиливать всю армию.",
+      "tribe": "MURLOC",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "keywords", "label": "яд и бонусные свойства", "mechanics": ["VENOMOUS"], "text": "Bonus Keyword|Venomous", "neutral": true },
+        { "id": "battlecry-replay", "label": "повтор боевых кличей", "text": "[Tt]rigger.{0,25}Battlecr|Battlecries trigger twice", "neutral": true }
+      ],
+      "support": [
+        { "id": "hand-buffs", "label": "усиление карт в руке", "text": "in your hand|your hand" },
+        { "id": "battlecries", "label": "боевые кличи", "mechanics": ["BATTLECRY"] }
+      ]
+    },
+    {
+      "id": "mech",
+      "name": "Механизмы: магнетизм",
+      "plan": "Примагничивайте магнитные существа к механизмам и копите божественные щиты на одном-двух носителях.",
+      "tribe": "MECHANICAL",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "magnetic", "label": "магнитные существа", "mechanics": ["MAGNETIC"] },
+        { "id": "magnetize-payoff", "label": "выгода от магнетизма", "text": "Magnetiz|Volumizer" }
+      ],
+      "support": [
+        { "id": "shield", "label": "божественный щит и провокация", "mechanics": ["DIVINE_SHIELD", "TAUNT"] },
+        { "id": "deathrattle", "label": "предсмертные хрипы", "mechanics": ["DEATHRATTLE"] }
+      ]
+    },
+    {
+      "id": "beast",
+      "name": "Звери: призыв и боевой раж",
+      "plan": "Призывайте много мелких зверей и жуков и усиливайте их боевым ражем и общими баффами.",
+      "tribe": "BEAST",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "summon", "label": "призыв и предсмертные хрипы", "mechanics": ["DEATHRATTLE"], "text": "[Ss]ummon|Beetle", "neutral": true },
+        { "id": "rally", "label": "боевой раж", "mechanics": ["BACON_RALLY"], "neutral": true }
+      ],
+      "support": [
+        { "id": "beast-buffs", "label": "усиление зверей", "text": "Beasts?\\b" }
+      ]
+    },
+    {
+      "id": "undead",
+      "name": "Нежить: перерождение и хрипы",
+      "plan": "Копите существ с перерождением и предсмертными хрипами, чтобы они возвращались и усиливали остальную нежить.",
+      "tribe": "UNDEAD",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "reborn", "label": "перерождение", "mechanics": ["REBORN"], "text": "Reborn" },
+        { "id": "deathrattle", "label": "предсмертные хрипы", "mechanics": ["DEATHRATTLE"] }
+      ],
+      "support": [
+        { "id": "avenge", "label": "месть", "mechanics": ["AVENGE"] },
+        { "id": "undead-buffs", "label": "усиление нежити", "text": "Undead", "neutral": true },
+        { "id": "deathrattle-multiplier", "label": "удвоение хрипов", "text": "Deathrattles trigger", "neutral": true }
+      ]
+    },
+    {
+      "id": "elemental",
+      "name": "Элементали: таверна и продажи",
+      "plan": "Усиливайте существа в таверне и продавайте метателей, которые баффают всю армию.",
+      "tribe": "ELEMENTAL",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "tavern-buffs", "label": "усиление таверны", "text": "in the Tavern|Tavern is Refreshed" },
+        { "id": "sell-triggers", "label": "эффекты при продаже", "text": "When you sell this" }
+      ],
+      "support": [
+        { "id": "shield", "label": "божественный щит", "mechanics": ["DIVINE_SHIELD"] },
+        { "id": "elemental-buffs", "label": "усиление элементалей", "text": "Elementals?\\b" }
+      ]
+    },
+    {
+      "id": "dragon",
+      "name": "Драконы: начало боя и щиты",
+      "plan": "Раздавайте божественные щиты и бонусы в начале боя и сохраняйте их между боями.",
+      "tribe": "DRAGON",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "start-of-combat", "label": "начало боя", "mechanics": ["START_OF_COMBAT"] },
+        { "id": "shield", "label": "божественный щит и его раздача", "mechanics": ["DIVINE_SHIELD"], "text": "[Gg]ives?.{0,40}Divine Shield" }
+      ],
+      "support": [
+        { "id": "rally", "label": "боевой раж", "mechanics": ["BACON_RALLY"] },
+        { "id": "dragon-buffs", "label": "усиление драконов", "text": "Dragons?\\b|Chromadrake" }
+      ]
+    },
+    {
+      "id": "naga",
+      "name": "Наги: чародейство",
+      "plan": "Накапливайте заклинания таверны и применяйте их на нагах, которые растут от каждого заклинания.",
+      "tribe": "NAGA",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "spellcraft", "label": "чародейство", "mechanics": ["BACON_SPELLCRAFT_ID"], "text": "Spellcraft" },
+        { "id": "spell-payoff", "label": "выгода от заклинаний", "text": "[Ww]henever you cast|[Aa]fter you cast|spell on this|spell is played on|Tavern spells give|cast (a|\\d|Chef)|Cast (a|\\d|Chef|Natural)|Tavern spell you cast|last Tavern spell", "neutral": true }
+      ],
+      "support": [
+        { "id": "taunt-shield", "label": "провокация и щит", "mechanics": ["TAUNT", "DIVINE_SHIELD"] },
+        { "id": "naga-buffs", "label": "усиление наг", "text": "Naga" }
+      ]
+    },
+    {
+      "id": "quilboar",
+      "name": "Свинобразы: кровавые самоцветы",
+      "plan": "Набирайте кровавые самоцветы и усиливайте их эффект, чтобы вешать крупные баффы на всю армию.",
+      "tribe": "QUILBOAR",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "gem-source", "label": "источники самоцветов", "text": "Blood Gem|Gem Day|Gem Confiscation" },
+        { "id": "gem-amplifier", "label": "усилители самоцветов", "text": "Blood Gems (give|played)|Blood Gem(s)? on (all|a different|itself)|Blood Gems on all|Choose One card|Choose One" }
+      ],
+      "support": [
+        { "id": "shield-wind", "label": "щит и неистовство", "mechanics": ["DIVINE_SHIELD", "WINDFURY"] }
+      ]
+    },
+    {
+      "id": "pirate",
+      "name": "Пираты: золото и золотые существа",
+      "plan": "Тратьте золото на награды и сейфы и делайте существа золотыми, чтобы усиливать пиратов.",
+      "tribe": "PIRATE",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "gold", "label": "золото, сейфы и награды", "text": "Gold|Lockbox|Bount" },
+        { "id": "golden", "label": "золотые существа", "text": "Golden" }
+      ],
+      "support": [
+        { "id": "shield-wind", "label": "щит и неистовство", "mechanics": ["DIVINE_SHIELD", "WINDFURY"] }
+      ]
+    },
+    {
+      "id": "demon",
+      "name": "Демоны: здоровье героя и пожирание",
+      "plan": "Расплачивайтесь здоровьем героя за статы и пожирайте существа из таверны, чтобы демоны росли.",
+      "tribe": "DEMON",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "hero-damage", "label": "урон по своему герою", "text": "[Hh]ero takes|to your hero|cost Health" },
+        { "id": "consume", "label": "пожирание существ", "text": "[Cc]onsume" }
+      ],
+      "support": [
+        { "id": "tavern-buffs", "label": "таверна и наживка", "text": "in the Tavern|Fodder" }
+      ]
+    },
+    {
+      "id": "aberration",
+      "name": "Аберрации: сброс карт и божество",
+      "plan": "Сбрасывайте карты ради бонусов и растите своё божество и армию.",
+      "tribe": "ABERRATION",
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "discard", "label": "сброс карт", "text": "[Dd]iscard" },
+        { "id": "deity", "label": "рост божества", "text": "Deity|Deities" }
+      ],
+      "support": [
+        { "id": "tavern-spells", "label": "заклинания таверны", "text": "Tavern spell" }
+      ]
+    },
+    {
+      "id": "deathrattle",
+      "name": "Предсмертные хрипы",
+      "plan": "Собирайте существ с предсмертными хрипами и добавьте то, что повторяет или удваивает эти хрипы.",
+      "tribe": null,
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "deathrattles", "label": "существа с хрипами", "mechanics": ["DEATHRATTLE"] },
+        { "id": "multiplier", "label": "повтор хрипов", "text": "Deathrattles trigger|Deathrattle minions|left-most Deathrattle|Deathrattles? you've triggered" }
+      ],
+      "support": [
+        { "id": "reborn", "label": "перерождение", "mechanics": ["REBORN", "AVENGE"] }
+      ]
+    },
+    {
+      "id": "battlecry",
+      "name": "Боевые кличи",
+      "plan": "Собирайте существ с боевыми кличами и повторяйте их эффектами, которые вызывают клич снова.",
+      "tribe": null,
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "battlecries", "label": "существа с боевыми кличами", "mechanics": ["BATTLECRY"] },
+        { "id": "replay", "label": "повтор боевых кличей", "text": "[Tt]rigger.{0,25}Battlecr|Battlecries trigger twice" }
+      ],
+      "support": [
+        { "id": "end-of-turn", "label": "эффекты в конце хода", "mechanics": ["END_OF_TURN_TRIGGER"] }
+      ]
+    },
+    {
+      "id": "divine-shield",
+      "name": "Божественные щиты",
+      "plan": "Копите существ с божественным щитом и добавьте тех, кто получает выгоду от щитов.",
+      "tribe": null,
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "shields", "label": "существа со щитом", "mechanics": ["DIVINE_SHIELD"] },
+        { "id": "shield-payoff", "label": "выгода от щитов", "text": "(with|loses|lose|gains?|give[s]?|for each)\\b.{0,40}Divine Shield|Divine Shield.{0,30}(until next turn|when|while)" }
+      ],
+      "support": [
+        { "id": "taunt", "label": "провокация", "mechanics": ["TAUNT", "REBORN"] }
+      ]
+    },
+    {
+      "id": "rally",
+      "name": "Боевой раж",
+      "plan": "Собирайте существ с боевым ражем и усиливайте то, что запускает раж ещё раз.",
+      "tribe": null,
+      "updated": "2026-11-06",
+      "core": [
+        { "id": "rally-minions", "label": "существа с боевым ражем", "mechanics": ["BACON_RALLY"] },
+        { "id": "rally-support", "label": "поддержка боевого ража", "text": "[Tt]rigger.{0,25}Rally|friendly Rally" }
+      ],
+      "support": [
+        { "id": "windfury", "label": "неистовство ветра", "mechanics": ["WINDFURY"] }
+      ]
+    }
+  ]
+}

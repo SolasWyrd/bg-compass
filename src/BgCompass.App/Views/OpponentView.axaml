@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.OpponentView"
+             x:DataType="vm:OpponentVm">
+  <StackPanel>
+    <TextBlock Text="{Binding Empty}" Classes="dim" IsVisible="{Binding HasEmpty}" />
+    <StackPanel IsVisible="{Binding HasData}">
+      <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding HasFocus}" Margin="0,0,0,8">
+        <Border Classes="tile" ToolTip.Tip="Таверна"><TextBlock Text="{Binding FocusTier}" /></Border>
+        <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Heading}" Classes="bold one" />
+          <TextBlock Text="{Binding BoardAge}" Classes="small one" Classes.warn="{Binding IsStale}" Classes.dim="{Binding !IsStale}" />
+        </StackPanel>
+      </Grid>
+      <ItemsControl ItemsSource="{Binding Board}" IsVisible="{Binding HasBoard}">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:MinionVm">
+          <Border Classes="chip" ToolTip.Tip="{Binding Tip}">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <TextBlock Text="{Binding Name}" Classes.accent="{Binding Golden}" />
+              <TextBlock Text="{Binding Stats}" Classes="dim" />
+            </StackPanel>
+          </Border>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <ItemsControl ItemsSource="{Binding Encounters}" IsVisible="{Binding HasEncounters}" Margin="0,4,0,0">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:EncounterVm">
+          <Border Classes="tile mini" Classes.lime="{Binding IsWin}" Classes.coral="{Binding IsLoss}" Margin="0,0,4,4" ToolTip.Tip="{Binding Text}">
+            <TextBlock Text="{Binding Score}" />
+          </Border>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Border Classes="line" Margin="0,6,0,6" />
+      <ItemsControl ItemsSource="{Binding Seats}">
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:SeatVm">
+          <Button Classes="row" Classes.sel="{Binding IsSelected}" Command="{Binding Select}" ToolTip.Tip="Показать доску этого игрока">
+            <Grid ColumnDefinitions="20,*,34,20">
+              <TextBlock Text="{Binding Place}" Classes="dim small" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="{Binding Name}" Classes="small one" Classes.accent="{Binding IsNext}" Classes.dim="{Binding IsDead}" Classes.bold="{Binding IsLocal}" />
+              <TextBlock Grid.Column="2" Text="{Binding Health}" Classes="small bold" HorizontalAlignment="Right" Classes.dim="{Binding IsDead}" />
+              <TextBlock Grid.Column="3" Text="{Binding Tier}" Classes="small dim" HorizontalAlignment="Right" />
+            </Grid>
+          </Button>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </StackPanel>
+</UserControl>

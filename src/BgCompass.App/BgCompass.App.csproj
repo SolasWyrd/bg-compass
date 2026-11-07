@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>BgCompass</AssemblyName>
+    <RootNamespace>BgCompass.App</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Not invariant: Core formats Russian text with new CultureInfo("ru-RU"), which throws in invariant mode. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <Version>0.2.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.5" />
+    
+    <PackageReference Include="Avalonia.Headless" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.5" />
+    <ProjectReference Include="..\BgCompass.Core\BgCompass.Core.csproj" />
+    <InternalsVisibleTo Include="BgCompass.AppTests" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\DESIGN.md" LogicalName="DESIGN.md" />
+    <AvaloniaResource Include="Assets/Fonts/*.ttf" />
+  </ItemGroup>
+</Project>

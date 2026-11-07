@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.SettingsView"
+             x:DataType="vm:SettingsVm">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="20,6,20,20" MaxWidth="640" HorizontalAlignment="Left">
+
+      <TextBlock Text="Журнал игры" Classes="section" Margin="0,0,0,4" />
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4" Background="Transparent" ToolTip.Tip="{Binding LogTip}">
+        <Border Classes="dot" Classes.ok="{Binding LogOk}" Classes.bad="{Binding !LogOk}" Margin="0,0,10,0" />
+        <TextBlock Grid.Column="1" Text="{Binding LogState}" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" IsVisible="{Binding !IsReplay}">
+          <Button Content="Папка…" Command="{Binding PickFolder}" ToolTip.Tip="Указать папку игры или Logs" />
+          <Button Content="Авто" Command="{Binding ClearFolder}" ToolTip.Tip="Искать Power.log автоматически" />
+        </StackPanel>
+      </Grid>
+      <TextBlock Text="{Binding LogPath}" Classes="dim small one" IsVisible="{Binding HasLogPath}" Margin="18,0,0,0" ToolTip.Tip="{Binding LogPath}" />
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4" Background="Transparent" ToolTip.Tip="{Binding ConfigTip}">
+        <Border Classes="dot" Classes.ok="{Binding ConfigOk}" Margin="0,0,10,0" />
+        <TextBlock Grid.Column="1" Text="{Binding ConfigState}" VerticalAlignment="Center" />
+        <Button Grid.Column="2" Classes="primary" Content="Включить логи" Command="{Binding EnableLogs}" IsEnabled="{Binding CanEnable}" />
+      </Grid>
+      <TextBlock Text="{Binding EnableResult}" Classes="accent small" IsVisible="{Binding HasEnableResult}" Margin="18,0,0,0" ToolTip.Tip="{Binding EnableTip}" />
+
+      <TextBlock Text="Данные карт" Classes="section" Margin="0,16,0,4" />
+      <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,4" Background="Transparent" ToolTip.Tip="{Binding CardsTip}">
+        <TextBlock Text="{Binding CardsState}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="{Binding RefreshNote}" Classes="dim small" VerticalAlignment="Center" Margin="0,0,10,0" />
+        <Button Grid.Column="2" Content="Обновить"  Command="{Binding Refresh}"
+                ToolTip.Tip="Скачать свежую базу карт с HearthstoneJSON. Сетевые запросы программы: HearthstoneJSON (карты и картинки) и GitHub Releases (обновления). Остальное остаётся на вашем компьютере." />
+      </Grid>
+      <TextBlock Text="{Binding CardsWarning}" Classes="warn small" IsVisible="{Binding HasCardsWarning}" ToolTip.Tip="{Binding CardsWarning}" />
+
+      <TextBlock Text="Оверлей" Classes="section" Margin="0,16,0,4" />
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4" Background="Transparent"
+            ToolTip.Tip="Размер подстраивается под высоту окна игры (1080p = 100%); ползунок меняет его дополнительно.">
+        <TextBlock Text="Размер панелей" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <Slider Grid.Column="1" Minimum="0.5" Maximum="2" TickFrequency="0.05" Value="{Binding UserScale}" />
+        <TextBlock Grid.Column="2" Text="{Binding UserScaleText}" VerticalAlignment="Center" Margin="12,0,0,0" MinWidth="44" TextWrapping="NoWrap" />
+      </Grid>
+      <CheckBox Content="Сквозной режим" IsChecked="{Binding ClickThrough}" Margin="0,2"
+                ToolTip.Tip="Клики проходят сквозь панели в игру. Панели нельзя нажать и двигать, кроме верхней полосы. Переключается на Ctrl+Shift+T." />
+      <Button Content="Сбросить положение панелей" Command="{Binding ResetPositions}" HorizontalAlignment="Left" Margin="0,6,0,0"
+              ToolTip.Tip="Вернуть панели на места и показать все" />
+
+      <TextBlock Text="Горячие клавиши" Classes="section" Margin="0,16,0,4" />
+      <ItemsControl ItemsSource="{Binding Hotkeys}">
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:HotkeyRowVm">
+          <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3" Background="Transparent">
+            <Border Classes="dot" Classes.ok="{Binding Ok}" Classes.bad="{Binding !Ok}" Margin="0,0,10,0" ToolTip.Tip="{Binding State}" />
+            <TextBlock Grid.Column="1" Text="{Binding Name}" Classes="one" ToolTip.Tip="{Binding Detail}" />
+            <TextBlock Grid.Column="2" Text="{Binding Keys}" Classes="accent bold" TextWrapping="NoWrap" />
+          </Grid>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <TextBlock Text="Риск" Classes="section" Margin="0,16,0,4" />
+      <TextBlock Text="Читает только Power.log, в игру не вмешивается. Blizzard оверлеи не одобряла: на ваш риск." Classes="small" Background="Transparent"
+                 ToolTip.Tip="{Binding Eula}" />
+
+      <Border Classes="line" Margin="0,20,0,12" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="{Binding AppVersion}" Classes="dim small" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Classes="primary" Content="{Binding UpdateText}" Command="{Binding Restart}" IsVisible="{Binding HasUpdate}" />
+        <TextBlock Grid.Column="1" Text="Обновления проверяются автоматически" Classes="dim small" VerticalAlignment="Center" IsVisible="{Binding NoUpdate}" />
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

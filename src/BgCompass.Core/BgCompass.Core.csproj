@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\**\*.json;Data\**\*.json.gz" WithCulture="false" />
+    <InternalsVisibleTo Include="BgCompass.Tests" />
+  </ItemGroup>
+</Project>

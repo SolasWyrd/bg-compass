@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:BgCompass.App.ViewModels"
+        xmlns:v="using:BgCompass.App.Views"
+        x:Class="BgCompass.App.MainWindow"
+        x:DataType="vm:MainVm"
+        Title="BG Compass" Width="1040" Height="720" MinWidth="720" MinHeight="480"
+        FontFamily="{StaticResource UiFont}"
+        Background="{StaticResource SurfaceSolidBrush}"
+        WindowStartupLocation="CenterScreen">
+  <Grid RowDefinitions="Auto,*">
+    <Grid ColumnDefinitions="Auto,Auto,*" Margin="20,14,20,6">
+      <TextBlock Text="BG Compass" Classes="title accent" VerticalAlignment="Center" TextWrapping="NoWrap" Margin="0,0,20,0" />
+      <ItemsControl Grid.Column="1" ItemsSource="{Binding Tabs}">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:TabVm">
+            <Button Classes="tab" Classes.selected="{Binding IsSelected}" Content="{Binding Title}" Command="{Binding Select}" Padding="12,6" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Border Grid.Column="2" Classes="beta" IsVisible="{Binding IsReplay}" HorizontalAlignment="Right" VerticalAlignment="Center"
+              ToolTip.Tip="Идёт повтор лога, а не живая игра">
+        <TextBlock Text="повтор" TextWrapping="NoWrap" />
+      </Border>
+    </Grid>
+    <Grid Grid.Row="1">
+      <Grid IsVisible="{Binding ShowCatalog}"><v:CatalogView DataContext="{Binding Catalog}" /></Grid>
+      <Grid IsVisible="{Binding ShowStats}"><v:StatsView DataContext="{Binding Stats}" /></Grid>
+      <Grid IsVisible="{Binding ShowSettings}"><v:SettingsView DataContext="{Binding Settings}" /></Grid>
+    </Grid>
+  </Grid>
+</Window>

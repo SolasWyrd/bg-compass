@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BgCompass.App.ViewModels"
+             x:Class="BgCompass.App.Views.CompassFrame"
+             x:DataType="vm:CompassVm">
+  <Border Classes="panel">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+      <Border x:Name="Header" Background="Transparent" Padding="14,8,8,8">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <TextBlock Text="{Binding TopBar.Round}" Classes="bold one" />
+            <TextBlock Text="{Binding TopBar.Tier}" Classes="dim one" />
+            <TextBlock Text="повтор" Classes="warn small one" IsVisible="{Binding TopBar.IsReplay}" ToolTip.Tip="Идёт повтор лога, а не живая игра" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="icon ready" Command="{Binding Update}" IsVisible="{Binding HasUpdate}" ToolTip.Tip="{Binding UpdateTip}">
+            <Path Classes="icon" Data="{StaticResource IconUpdate}" />
+          </Button>
+          <Button Grid.Column="2" Classes="icon" Command="{Binding TopBar.OpenMain}" ToolTip.Tip="Каталог, статистика, настройки">
+            <Path Classes="icon" Data="{StaticResource IconWindow}" />
+          </Button>
+          <Button Grid.Column="3" Classes="icon" Command="{Binding ToggleCollapse}" ToolTip.Tip="{Binding CollapseTip}">
+            <Panel>
+              <Path Classes="icon" Data="{StaticResource IconChevronUp}" IsVisible="{Binding ShowBody}" />
+              <Path Classes="icon" Data="{StaticResource IconChevronDown}" IsVisible="{Binding Collapsed}" />
+            </Panel>
+          </Button>
+        </Grid>
+      </Border>
+      <ItemsControl Grid.Row="1" ItemsSource="{Binding Tabs}" IsVisible="{Binding ShowTabs}" Margin="10,0,10,6">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:TabVm">
+          <Button Classes="tab" Classes.selected="{Binding IsSelected}" Content="{Binding Title}" Command="{Binding Select}" />
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Grid.Row="2" Text="{Binding TopBar.Status}" ToolTip.Tip="{Binding TopBar.StatusTip}" IsVisible="{Binding ShowStatus}"
+                 Classes="warn small one" Margin="14,0,14,6" />
+      <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" IsVisible="{Binding ShowBody}">
+        <ContentControl Content="{Binding Body}" Margin="12,2,12,12" />
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</UserControl>
