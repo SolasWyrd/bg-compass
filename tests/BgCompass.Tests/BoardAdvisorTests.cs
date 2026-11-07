@@ -225,7 +225,8 @@ public class BoardAdvisorTests
     [Fact]
     public void TransitionsAreRulesOnTheLeadingDirection()
     {
-        var a = Advise(Snapshot(["Bile Spitter", "Primalfin Lookout", "Tad", "Bubble Gunner"], 6, 5, null, "MURLOC"));
+        // A mixed board: once a tribe holds half of it, tribeless builds with a missing engine are no longer offered.
+        var a = Advise(Snapshot(["Bubble Gunner", "Primalfin Lookout", "Iron Groundskeeper", "Friendly Saloonkeeper", "Razorfen Geomancer"], 6, 5, null, "MURLOC"));
         var shared = a.Directions[0].Lines.Where(l => l.Text.Contains("Обычно между такими направлениями")).ToList();
         Assert.NotEmpty(shared);
         Assert.All(shared, l => Assert.Equal(AdviceSource.Rule, l.Source));

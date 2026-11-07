@@ -21,6 +21,17 @@
   <StackPanel>
     <TextBlock Text="{Binding Empty}" Classes="dim" IsVisible="{Binding HasEmpty}" />
     <StackPanel IsVisible="{Binding HasData}">
+      <ItemsControl ItemsSource="{Binding Stats}" IsVisible="{Binding HasStats}" Margin="0,0,0,8">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:TurnStat">
+          <Border Classes="fieldstat panelstat" Classes.accent="{Binding Accent}" Classes.alert="{Binding Alert}" Classes.old="{Binding Muted}" ToolTip.Tip="{Binding Tip}">
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="{Binding Value}" Classes="value" />
+              <TextBlock Text="{Binding Caption}" Classes="caption" />
+            </StackPanel>
+          </Border>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
       <TextBlock Text="Брать сейчас" Classes="small dim" Margin="0,0,0,4" IsVisible="{Binding HasBuy}" />
       <ItemsControl ItemsSource="{Binding Buy}" IsVisible="{Binding HasBuy}" Margin="0,0,0,8">
         <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>

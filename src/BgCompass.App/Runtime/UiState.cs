@@ -1,4 +1,5 @@
 using BgCompass.Core;
+using BgCompass.Core.Advice;
 using BgCompass.Core.Cards;
 using BgCompass.Core.Logs;
 
@@ -39,6 +40,16 @@ public sealed record UiState(
 
     /// <summary>Version (e.g. "0.2.0") downloaded and installed, waiting for a restart; null when there is nothing to restart for.</summary>
     public string? UpdateReadyVersion { get; init; }
+
+    /// <summary>Recruit phase: the current board against the next opponent's last seen one.</summary>
+    public SimView Preview { get; init; } = SimView.None;
+    public CombatSnapshot? PreviewCombat { get; init; }
+
+    /// <summary>Recruit phase: what this turn's gold should go to. Null outside it and while there is no card data.</summary>
+    public TurnPlan? Turn { get; init; }
+
+    /// <summary>Why the in-game layer was switched off for this run; null while it is fine.</summary>
+    public string? FieldProblem { get; init; }
 
     public bool InMatch => Match.Phase != MatchPhase.Idle;
 }

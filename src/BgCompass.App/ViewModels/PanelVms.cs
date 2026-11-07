@@ -206,20 +206,13 @@ public sealed class HintPillVm(string label, string tip, bool alert)
     public bool IsAlert { get; } = alert;
 }
 
-/// <summary>Shop cards the top directions want now. The panel lists them, the game layer rings them.</summary>
-public static class BuildPicks
-{
-    public static IEnumerable<(CardRef Card, ArchetypeFit Direction)> Now(BoardAdvice a) =>
-        a.Directions.Take(3)
-            .SelectMany(d => d.MissingCoreNow.Concat(d.NextTierTargets).Where(c => c.InShop).Select(c => (Card: c, Direction: d)))
-            .DistinctBy(p => p.Card.CardId);
-}
-
 public sealed class BuildVm : ViewModelBase
 {
     BoardAdvice? _last;
+    TurnPlan? _lastTurn;
     string? _expanded;
     string _empty = "";
+    IReadOnlyList<TurnStat> _stats = [];
     IReadOnlyList<DirectionVm> _directions = [];
     IReadOnlyList<CardChipVm> _buy = [];
     IReadOnlyList<HintPillVm> _hints = [];
@@ -231,9 +224,17 @@ public sealed class BuildVm : ViewModelBase
     public IReadOnlyList<CardChipVm> Buy { get => _buy; private set { if (Set(ref _buy, value)) Raise(nameof(HasBuy)); } }
     public bool HasBuy => _buy.Count > 0;
     public IReadOnlyList<HintPillVm> Hints { get => _hints; private set => Set(ref _hints, value); }
+    public IReadOnlyList<TurnStat> Stats { get => _stats; private set { if (Set(ref _stats, value)) Raise(nameof(HasStats)); } }
+    public bool HasStats => _stats.Count > 0;
 
     public void Apply(UiState s)
     {
+        if (!ReferenceEquals(s.Turn, _lastTurn))
+        {
+            _lastTurn = s.Turn;
+            Stats = s.Turn is { } t ? TurnStats.From(t) : [];
+            Buy = s.Turn is { } p ? p.Picks.Select(c => new CardChipVm(new CardRef(c.CardId, c.Name, s.Catalog?.Resolve(c.CardId)?.Tier ?? 0, [], false, true))).ToList() : [];
+        }
         var a = s.Board;
         if (ReferenceEquals(a, _last) && a is not null) return;
         _last = a;
@@ -251,7 +252,6 @@ public sealed class BuildVm : ViewModelBase
         var top = a.Directions.Take(3).ToList();
         var open = top.Any(d => d.Id == _expanded) ? _expanded : top.FirstOrDefault()?.Id;
         Directions = top.Select(d => new DirectionVm(d, d.Id == open, Toggle)).ToList();
-        Buy = BuildPicks.Now(a).Select(p => new CardChipVm(p.Card)).ToList();
         var pills = new List<HintPillVm>();
         void Pill(string label, IReadOnlyList<AdviceLine> lines, bool alert = false)
         {

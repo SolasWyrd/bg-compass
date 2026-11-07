@@ -78,14 +78,14 @@ internal sealed class Minion
 internal sealed class Side
 {
     public readonly Minion[] Ms = new Minion[Fighter.MaxBoard + 1];
-    public int N, Ptr, BeetleA, BeetleH, UndeadAtk, KnightDeaths, DeadN;
+    public int N, Ptr, BeetleA, BeetleH, UndeadAtk, KnightDeaths, DeadN, Deaths;
     public readonly Minion?[] DeadMechs = new Minion?[4];
-    public bool WAtk, WDeath, WReborn, WSummon, WRep;
+    public bool WAtk, WDeath, WReborn, WSummon, WRep, WDeathAtk;
 
     public void Load(Minion[] templates, Fighter f)
     {
-        N = 0; Ptr = 0; BeetleA = 0; BeetleH = 0; UndeadAtk = 0; KnightDeaths = 0; DeadN = 0;
-        WAtk = WDeath = WReborn = WSummon = WRep = false;
+        N = 0; Ptr = 0; BeetleA = 0; BeetleH = 0; UndeadAtk = 0; KnightDeaths = 0; DeadN = 0; Deaths = 0;
+        WAtk = WDeath = WReborn = WSummon = WRep = WDeathAtk = false;
         foreach (var t in templates)
         {
             var m = f.Clone(t);
@@ -96,6 +96,7 @@ internal sealed class Side
             if (sc.OnReborn is not null) WReborn = true;
             if (sc.OnSummon is not null) WSummon = true;
             if (sc.DrRep != 0) WRep = true;
+            if (sc.DeathA != 0) WDeathAtk = true;
         }
         Array.Clear(Ms, N, Ms.Length - N);
         Array.Clear(DeadMechs);
@@ -142,6 +143,7 @@ internal sealed class Side
         Array.Copy(Ms, i, Ms, i + 1, N - i);
         Ms[i] = m;
         N++;
+        if (m.Sc.DeathA != 0) WDeathAtk = true;
         if (i < Ptr) Ptr++;
     }
 }
@@ -279,18 +281,22 @@ internal sealed class Fighter
         if (side.N >= MaxBoard) return i;
         if (tok.Beetle) Buff(tok, side.BeetleA, side.BeetleH);
         if (tok.Has(Tribe.Undead)) tok.Atk += side.UndeadAtk;
+        tok.Atk += tok.Sc.DeathA * side.Deaths;
         side.Insert(i, tok);
-        if (side.WSummon)
-        {
-            var d = SnapBegin(side);
-            for (var k = 0; k < _snapN[d]; k++)
-            {
-                var w = _snap[d][k];
-                if (w.Sc.OnSummon is { } h && w.Hp > 0 && !ReferenceEquals(w, tok)) h(this, w, tok, side, other);
-            }
-            SnapEnd();
-        }
+        FireSummon(side, tok, other);
         return i + 1;
+    }
+
+    void FireSummon(Side side, Minion tok, Side other)
+    {
+        if (!side.WSummon) return;
+        var d = SnapBegin(side);
+        for (var k = 0; k < _snapN[d]; k++)
+        {
+            var w = _snap[d][k];
+            if (w.Sc.OnSummon is { } h && w.Hp > 0 && !ReferenceEquals(w, tok)) h(this, w, tok, side, other);
+        }
+        SnapEnd();
     }
 
     /// <summary>Scratch list filled by <see cref="Pick"/>.</summary>
@@ -387,6 +393,10 @@ internal sealed class Fighter
                     changed = true;
                     side.Remove(i);
                     if (m.Sc.KnightA > 0) side.KnightDeaths++;
+                    side.Deaths++;
+                    if (side.WDeathAtk)
+                        for (var k = 0; k < side.N; k++)
+                            if (side.Ms[k].Sc.DeathA != 0 && side.Ms[k].Hp > 0) side.Ms[k].Atk += side.Ms[k].Sc.DeathA;
                     for (int r = 0, reps = side.DrRepeats(); r < reps; r++) i = Deathrattle(m, side, other, i);
                     if (m.Reborn && side.N < MaxBoard)
                     {
@@ -397,8 +407,11 @@ internal sealed class Fighter
                         rb.Atk = m.BaseAtk;
                         if (side.UndeadAtk != 0 && rb.Has(Tribe.Undead)) rb.Atk += side.UndeadAtk;
                         rb.Reborn = false;
+                        rb.Atk += rb.Sc.DeathA * side.Deaths;
                         side.Insert(i, rb);
                         i++;
+                        // A Reborn copy is summoned: "after you summon" watchers see it as well as the Reborn watchers.
+                        FireSummon(side, rb, other);
                         if (side.WReborn)
                         {
                             var d = SnapBegin(side);

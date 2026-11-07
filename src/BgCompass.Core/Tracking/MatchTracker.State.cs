@@ -49,6 +49,10 @@ public sealed partial class MatchTracker
         public readonly Dictionary<int, TrackedEntity> PlayerEntities = [];
         public TrackedEntity? GameEntity, Pending;
         public readonly List<HeroOffer> Offers = [];
+        /// <summary>Cards the game asks the player to pick from right now, other than the hero pick.</summary>
+        public readonly List<EntityRef> Choices = [];
+        public int? DamageCap;
+        public bool DamageCapOn = true;
         public readonly HashSet<string> Confirmed = new(StringComparer.Ordinal);
         public readonly Dictionary<int, LastSeenBoard> LastBoards = [];
         public readonly List<Encounter> Encounters = [];
@@ -127,6 +131,10 @@ public sealed partial class MatchTracker
             case GameTag.Armor: e.Armor = value; break;
             case GameTag.Premium: e.Premium = value; break;
             case GameTag.TechLevel: e.TechLevel = value; break;
+            case GameTag.Cost: e.Cost = value; break;
+            case GameTag.MaxPlayerTech: e.MaxTech = value; break;
+            case GameTag.DamageCap: if (e.IsGame) g.DamageCap = value; break;
+            case GameTag.DamageCapEnabled: if (e.IsGame) g.DamageCapOn = value != 0; break;
             case GameTag.Taunt: SetKeyword(e, MinionKeywords.Taunt, value); break;
             case GameTag.DivineShield: SetKeyword(e, MinionKeywords.DivineShield, value); break;
             case GameTag.Poisonous: SetKeyword(e, MinionKeywords.Poisonous, value); break;
@@ -175,6 +183,7 @@ public sealed partial class MatchTracker
     private void OnTurn(Game g, int turn)
     {
         g.Turn = turn;
+        g.Choices.Clear();
         if (turn >= 1) g.HeroChosen = true;
         if (turn <= 0) return;
         if (turn % 2 == 0)
@@ -227,7 +236,7 @@ public sealed partial class MatchTracker
     private static MinionView ToView(TrackedEntity e) => new(
         e.Id, e.CardId ?? "", e.Name ?? e.CardId ?? "", e.Atk, Math.Max(0, e.Health - e.Damage), e.ZonePos,
         e.Premium != 0, e.Keywords,
-        string.IsNullOrEmpty(e.Race) || e.Race == "INVALID" ? [] : [e.Race], e.TechLevel);
+        string.IsNullOrEmpty(e.Race) || e.Race == "INVALID" ? [] : [e.Race], e.TechLevel, e.Cost >= 0 ? e.Cost : 3);
 
     /// <summary>
     /// Hero entity that represents the seat of <paramref name="pid"/>. The game writes a seat's leaderboard place, tier, armor
@@ -298,7 +307,7 @@ public sealed partial class MatchTracker
             opp != 0 ? SeatTier(g, opp) : null,
             HeroHealth(localSeat),
             HeroHealth(seat),
-            reason is null, reason);
+            reason is null, reason, g.DamageCapOn ? g.DamageCap : null);
     }
 
     private void EndCombat(Game g)

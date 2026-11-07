@@ -81,7 +81,7 @@ public static class RenderUi
                     Panels(name, state, sn, scale);
 
             foreach (var (name, state) in scenarios)
-                if (name is "recruit" or "heropick" or "combat" or "combat-running") Field(name, state);
+                if (name is "recruit" or "heropick" or "combat" or "combat-running") Field(name, name == "recruit" ? _demo.WithPreview(state) : state);
             Guides(_demo.State(recruit, _host.History));
 
             var ui = _demo.State(recruit, _host.History);
@@ -121,6 +121,11 @@ public static class RenderUi
                 var w = new FieldWindow(vm) { Background = FieldBackdrop };
                 w.Follow(game);
                 Save(w, $"field_{scenario}_{shape}.png");
+                if (vm.Marks.FirstOrDefault(k => k.Kind == FieldMarkKind.Seat && k.Label.Length > 0) is { } seat)
+                {
+                    vm.Hover(seat.Hit.X + 2, seat.Hit.Y + 2);
+                    Save(w, $"field_{scenario}_seat_{shape}.png");
+                }
                 w.Close();
             }
         }

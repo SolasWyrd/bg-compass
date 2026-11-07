@@ -43,6 +43,7 @@
                 ToolTip.Tip="Клики проходят сквозь панели в игру. Панели нельзя нажать и двигать, кроме верхней полосы. Переключается на Ctrl+Shift+T." />
       <CheckBox Content="Метки на поле" IsChecked="{Binding FieldMarks}" Margin="0,2"
                 ToolTip.Tip="Рамки в магазине, числа над героями, племена у таблицы лидеров, шансы над полем. Клики всегда проходят в игру." />
+      <TextBlock Text="{Binding FieldProblem}" IsVisible="{Binding HasFieldProblem}" Classes="small coral" TextWrapping="Wrap" Margin="0,2" />
       <CheckBox Content="Показать разметку" IsChecked="{Binding FieldGuides}" Margin="0,2"
                 ToolTip.Tip="Рисует все ячейки магазина и таблицы лидеров. Если они не совпали с игрой, сдвиньте ползунками." />
       <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4" IsVisible="{Binding FieldGuides}">

@@ -120,6 +120,23 @@
   <Style Selector="Border.fieldtag.fact TextBlock"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
   <Style Selector="Border.fieldtag.next"><Setter Property="BorderBrush" Value="{StaticResource LossBrush}" /></Style>
   <Style Selector="Border.fieldtag.old TextBlock"><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /></Style>
+  <!-- A number of the turn: a fact, so a filled tile. -->
+  <Style Selector="Border.fieldstat">
+    <Setter Property="Background" Value="{StaticResource SurfaceSolidBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource Radius}" />
+    <Setter Property="Padding" Value="8,0" />
+  </Style>
+  <Style Selector="Border.fieldstat TextBlock"><Setter Property="TextWrapping" Value="NoWrap" /></Style>
+  <Style Selector="Border.fieldstat TextBlock.value"><Setter Property="FontSize" Value="19" /><Setter Property="FontWeight" Value="ExtraBold" /><Setter Property="LineHeight" Value="22" /></Style>
+  <Style Selector="Border.fieldstat TextBlock.caption"><Setter Property="FontSize" Value="11" /><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /><Setter Property="LineHeight" Value="14" /></Style>
+  <Style Selector="Border.fieldstat.accent TextBlock.value"><Setter Property="Foreground" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.fieldstat.old TextBlock.value"><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /></Style>
+  <Style Selector="Border.fieldstat.alert"><Setter Property="Background" Value="{StaticResource LossBrush}" /><Setter Property="BorderBrush" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="Border.fieldstat.alert TextBlock.value"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
+  <Style Selector="Border.fieldstat.alert TextBlock.caption"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
+  <Style Selector="Border.fieldstat.panelstat"><Setter Property="Width" Value="65" /><Setter Property="Height" Value="44" /><Setter Property="Margin" Value="0,0,3,3" /><Setter Property="Padding" Value="6,0" /></Style>
   <Style Selector="Border.fieldhero">
     <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
@@ -141,7 +158,19 @@
     <Setter Property="Padding" Value="14,6" />
     <Setter Property="MinHeight" Value="64" />
   </Style>
-  <Style Selector="Border.fieldpopup"><Setter Property="Width" Value="264" /><Setter Property="Padding" Value="12,10" /></Style>
+  <Style Selector="Border.fieldminion">
+    <Setter Property="Height" Value="52" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="Background" Value="{StaticResource RaisedBrush}" />
+  </Style>
+  <Style Selector="Border.fieldminion.golden"><Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" /></Style>
+  <Style Selector="Border.fieldring.sell"><Setter Property="BorderBrush" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="Border.fieldtag.card.sell"><Setter Property="BorderBrush" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="Border.fieldtag.card.sell TextBlock"><Setter Property="Foreground" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="Border.fieldpopup"><Setter Property="Padding" Value="12,10" /></Style>
 
   <Style Selector="Border.beta">
     <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" />

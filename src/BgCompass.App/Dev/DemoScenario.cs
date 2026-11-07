@@ -88,7 +88,7 @@ public sealed class DemoScenario
         return phase switch
         {
             MatchPhase.HeroPick => MatchSnapshot.Empty with { Phase = phase, BuildNumber = Catalog.Version.Build, Round = 0, HeroOffers = offers, ConfirmedTribes = new HashSet<string>(_confirmed.Take(1)) },
-            MatchPhase.Recruit => new(phase, Catalog.Version.Build, 6, hero.Id, hero.Name, 3, 7, [], board, Views(_shop, 500), players, encounters, _confirmed, null, null),
+            MatchPhase.Recruit => new MatchSnapshot(phase, Catalog.Version.Build, 6, hero.Id, hero.Name, 3, 7, [], board, Views(_shop, 500), players, encounters, _confirmed, null, null) with { UpgradeCost = 7, RefreshCost = 1, DamageCap = 10 },
             MatchPhase.Combat => new(phase, Catalog.Version.Build, 6, hero.Id, hero.Name, 3, 0, [], board, [], players, encounters, _confirmed, combat, null),
             MatchPhase.GameOver => new(phase, Catalog.Version.Build, 11, hero.Id, hero.Name, 5, 0, [], board, [], players, encounters, _confirmed, null, 3),
             _ => MatchSnapshot.Empty,
@@ -110,7 +110,17 @@ public sealed class DemoScenario
             sim = new SimView(SimStatus.Done, CombatSimulator.Run(c, Catalog, 3000, seed: 7));
         return new UiState(m, hero, board, sim ?? SimView.None, absent,
             cards ?? (withCatalog ? Ready(Catalog) : new CardsStatus(false, true, null, null, null)),
-            log ?? LogOk, withCatalog ? Catalog : null, false, 1);
+            log ?? LogOk, withCatalog ? Catalog : null, false, 1)
+        {
+            Turn = withCatalog && m.Phase == MatchPhase.Recruit ? TurnAdvisor.Plan(m, Catalog, board) : null,
+        };
+    }
+
+    /// <summary>The recruit scene with a what-if fight against the next opponent's last board.</summary>
+    public UiState WithPreview(UiState s)
+    {
+        var c = Snapshot(MatchPhase.Combat).Combat!;
+        return s with { PreviewCombat = c, Preview = new SimView(SimStatus.Done, CombatSimulator.Run(c, Catalog, 3000, seed: 7)) };
     }
 
     /// <summary>A dozen finished games over the offered heroes, so statistics and the "ваши игры" lines have something to say.</summary>

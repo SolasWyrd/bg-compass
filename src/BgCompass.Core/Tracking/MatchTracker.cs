@@ -134,7 +134,10 @@ public sealed partial class MatchTracker
         {
             case PowerKind.GameInfo: OnGameInfo(ev); break;
             case PowerKind.ChoicesHeader or PowerKind.ChoicesEntity: OnChoices(ev); break;
-            case PowerKind.ChosenHeader or PowerKind.ChosenEntity: break;
+            case PowerKind.ChosenHeader:
+                if (_g.Choices.Count > 0) { _g.Choices.Clear(); Touch(ev.Time); }
+                break;
+            case PowerKind.ChosenEntity: break;
             default: OnPower(ev); break;
         }
     }
@@ -228,15 +231,22 @@ public sealed partial class MatchTracker
         if (ev.Kind == PowerKind.ChoicesHeader)
         {
             g.ChoiceIsMulligan = ev.Text == "MULLIGAN";
-            if (!g.ChoiceIsMulligan) return;
+            g.Choices.Clear();
+            if (!g.ChoiceIsMulligan) { Touch(ev.Time); return; }
             g.Offers.Clear();
             g.Started = true;
             if (g.LocalName is null && !string.IsNullOrEmpty(ev.Text2)) g.LocalName = ev.Text2;
             Touch(ev.Time);
             return;
         }
-        if (!g.ChoiceIsMulligan || ev.Entity.Kind != EntityRefKind.Id || ev.Entity.CardId is null) return;
+        if (ev.Entity.Kind != EntityRefKind.Id || ev.Entity.CardId is null) return;
         var r = ev.Entity;
+        if (!g.ChoiceIsMulligan)
+        {
+            g.Choices.Add(r);
+            Touch(ev.Time);
+            return;
+        }
         if (r.Player > 0 && g.LocalPid != r.Player)
         {
             g.LocalPid = r.Player;

@@ -14,6 +14,7 @@ internal sealed class CardScript
     public int Overkill; // 0 none, 1 one random neighbour, 2 both neighbours
     public int DrRep;    // extra deathrattle triggers this minion's presence grants
     public int KnightA, KnightH;
+    public int DeathA;   // Attack this minion has for each friendly minion that died this combat
     public SummonSpec? Summon;
     public BuffSpec? DrBuff;
     public DeathHook? OnDeath;
@@ -24,7 +25,7 @@ internal sealed class CardScript
     public bool HasDeathrattle => Summon is not null || DrBuff is not null || OnDeath is not null;
 
     public bool HasEffect =>
-        Cleave || Overkill != 0 || DrRep != 0 || KnightA != 0 || HasDeathrattle
+        Cleave || Overkill != 0 || DrRep != 0 || KnightA != 0 || DeathA != 0 || HasDeathrattle
         || Soc is not null || OnAtk is not null || FAtk is not null || FDeath is not null
         || OnReborn is not null || OnSummon is not null;
 }
@@ -147,11 +148,16 @@ internal sealed partial class ScriptBook
     [GeneratedRegex(@"(?<=[.!])\s+")]
     private static partial Regex SentenceRx();
 
-    [GeneratedRegex(@"^\W*(?:(?:Taunt|Reborn|Divine Shield|Venomous|Poisonous|Windfury|Stealth|Magnetic|Deathrattle|Rally)\W*)*$|^\s*(?:Get|Add|Discover|Refresh|Give you|Reduce|Improve|Gain \d+ Gold|Your next)\b|to your hand|into your hand|[Tt]avern|\bGold\b")]
+    // "Your Blood Gems give an extra +X/+Y" only resizes gems played later; every card that plays one in combat is hard-listed.
+    [GeneratedRegex(@"^\W*(?:(?:Taunt|Reborn|Divine Shield|Venomous|Poisonous|Windfury|Stealth|Magnetic|Deathrattle|Rally)\W*)*$|^\s*(?:Get|Add|Discover|Refresh|Give you|Reduce|Improve|Gain \d+ Gold|Your next)\b|^\s*If you already have one|^\s*(?:You and your teammate each|Your teammate (?:gets|gains))\b|^\s*Activate\b|^\s*Your Blood Gems give an extra|to your hand|into your hand|[Tt]avern|\bGold\b")]
     private static partial Regex HandOnlyRx();
 
-    [GeneratedRegex(@"\b(?:Whenever|After)\b[^.:]*?(?:\battacks\b|\bdies\b|\bdie\b|\bReborn\b|\bsurvives\b|\bkills\b|takes damage|during combat|in combat)")]
+    [GeneratedRegex(@"\b(?:Whenever|After)\b[^.:]*?(?:\battacks\b|\bdies\b|\bdie\b|\bReborn\b|\bsurvives\b|\bkills\b|(?<!hero )takes damage|during combat|in combat)")]
     private static partial Regex WatcherRx();
+
+    /// <summary>"Whenever this kills a minion, give a minion in your hand +2/+2": the hand is not on the board during combat.</summary>
+    [GeneratedRegex(@"\b(?:Whenever|After)\b[^,.:]*,\s*give an? (?:random )?minion in your hand [+-]\d+/[+-]\d+\.?")]
+    private static partial Regex HandWatcherRx();
 
     [GeneratedRegex(@"Your Deathrattles trigger|excess damage|died this (?:combat|game)|(?:minions|enemies) next to")]
     private static partial Regex MiscRx();
@@ -199,7 +205,7 @@ internal sealed partial class ScriptBook
         var isRally = c.Mechanics.Any(x => x.Equals("BACON_RALLY", StringComparison.OrdinalIgnoreCase));
         var rallyClause = Clause(text, "Rally:");
         if ((isRally || rallyClause.Length > 0) && !HandOnlyClause(rallyClause)) reasons |= RRally;
-        if (WatcherRx().IsMatch(text)) reasons |= RWatch;
+        if (WatcherRx().IsMatch(HandWatcherRx().Replace(text, ""))) reasons |= RWatch;
         if (MiscRx().IsMatch(text)) reasons |= RMisc;
 
         var sc = new CardScript { Rally = isRally };
@@ -525,6 +531,49 @@ internal sealed partial class ScriptBook
                 w.Gained = list.ToArray();
             };
         });
+
+        H("BG33_828,BG33_828_G", @"Deathrattle: Give your minions \+(\d+)/\+(\d+)( twice)?", (m, sc, _) =>
+        {
+            int a = I(m, 1), h = I(m, 2), times = m.Groups[3].Success ? 2 : 1;
+            sc.OnDeath = (f, mm, own, en) =>
+            {
+                for (var k = 0; k < own.N; k++)
+                    if (own.Ms[k].Hp > 0)
+                        for (var t = 0; t < times; t++) Fighter.Buff(own.Ms[k], a, h);
+            };
+        });
+        // The Tentacles come from the derived Summon, which runs first, so they get the Attack too.
+        H("BG36_116,BG36_116_G", @"Deathrattle: Summon [^.]*\. Give your minions \+(\d+) Attack", (m, sc, _) =>
+        {
+            var a = I(m, 1);
+            sc.OnDeath = (f, mm, own, en) =>
+            {
+                for (var k = 0; k < own.N; k++)
+                    if (own.Ms[k].Hp > 0) Fighter.Buff(own.Ms[k], a, 0);
+            };
+        });
+        H("BG29_816,BG29_816_G", @"Whenever another friendly Dragon attacks, give it \+(\d+)/\+(\d+)", (m, sc, _) =>
+        {
+            int a = I(m, 1), h = I(m, 2);
+            sc.FAtk = (f, w, att, own, en) => { if (!ReferenceEquals(w, att) && att.Has(Tribe.Dragon)) Fighter.Buff(att, a, h); };
+        });
+        H("BG36_211,BG36_211_G", @"Whenever a friendly Beast attacks, give your Beasts \+(\d+)/\+(\d+)", (m, sc, _) =>
+        {
+            int a = I(m, 1), h = I(m, 2);
+            sc.FAtk = (f, w, att, own, en) =>
+            {
+                if (!att.Has(Tribe.Beast)) return;
+                for (var k = 0; k < own.N; k++)
+                    if (own.Ms[k].Hp > 0 && own.Ms[k].Has(Tribe.Beast)) Fighter.Buff(own.Ms[k], a, h);
+            };
+        });
+        H("BG26_802,BG26_802_G", @"After you summon a Beast in combat, (double|triple) its Attack", (m, sc, _) =>
+        {
+            var mult = m.Groups[1].Value == "double" ? 2 : 3;
+            sc.OnSummon = (f, w, tok, own, en) => { if (tok.Has(Tribe.Beast)) tok.Atk *= mult; };
+        });
+        H("BG25_013,BG25_013_G", @"Has \+(\d+) Attack for each friendly minion that died this combat",
+            (m, sc, _) => sc.DeathA = I(m, 1));
         return d;
     }
 

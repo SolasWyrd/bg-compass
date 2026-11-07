@@ -12,7 +12,7 @@ public static class GameTag
         Venomous = -15, Reborn = -16, Windfury = -17, Stealth = -18, Deathrattle = -19, Resources = -20,
         ResourcesUsed = -21, Turn = -22, Step = -23, State = -24, PlayState = -25, HeroEntity = -26, PlayerId = -27,
         NextOpponentPlayerId = -28, LeaderboardPlace = -29, PlayerTechLevel = -30, PlayerTriples = -31,
-        IsBaconPoolMinion = -32;
+        IsBaconPoolMinion = -32, Cost = -33, MaxPlayerTech = -34, DamageCap = -35, DamageCapEnabled = -36;
 
     private static readonly Dictionary<string, int> ByName = new(StringComparer.Ordinal)
     {
@@ -25,7 +25,8 @@ public static class GameTag
         ["PLAYSTATE"] = PlayState, ["HERO_ENTITY"] = HeroEntity, ["PLAYER_ID"] = PlayerId,
         ["NEXT_OPPONENT_PLAYER_ID"] = NextOpponentPlayerId, ["PLAYER_LEADERBOARD_PLACE"] = LeaderboardPlace,
         ["PLAYER_TECH_LEVEL"] = PlayerTechLevel, ["PLAYER_TRIPLES"] = PlayerTriples,
-        ["IS_BACON_POOL_MINION"] = IsBaconPoolMinion,
+        ["IS_BACON_POOL_MINION"] = IsBaconPoolMinion, ["COST"] = Cost, ["BACON_MAX_PLAYER_TECH_LEVEL"] = MaxPlayerTech,
+        ["BACON_COMBAT_DAMAGE_CAP"] = DamageCap, ["BACON_COMBAT_DAMAGE_CAP_ENABLED"] = DamageCapEnabled,
     };
 
     // Stable Hearthstone ids for the core tags; BG-specific ones are matched by name only.
@@ -53,7 +54,7 @@ public static class GameTag
 public static class TagValues
 {
     public const int ZonePlay = 1, ZoneDeck = 2, ZoneHand = 3, ZoneGraveyard = 4, ZoneRemoved = 5, ZoneSetAside = 6, ZoneSecret = 7;
-    public const int TypeGame = 1, TypePlayer = 2, TypeHero = 3, TypeMinion = 4, TypeSpell = 5, TypeEnchantment = 6, TypeHeroPower = 10, TypeTavernSpell = 42;
+    public const int TypeGame = 1, TypePlayer = 2, TypeHero = 3, TypeMinion = 4, TypeSpell = 5, TypeEnchantment = 6, TypeHeroPower = 10, TypeTavernSpell = 42, TypeTrinket = -1;
     public const int PlayPlaying = 1, PlayWinning = 4, PlayLosing = 5, PlayWon = 6, PlayLost = 7, PlayTied = 8, PlayDisconnected = 9, PlayConceded = 10;
     public const int StateRunning = 1, StateComplete = 2;
 
@@ -66,7 +67,8 @@ public static class TagValues
     public static int CardType(ReadOnlySpan<char> s) => s switch
     {
         "GAME" => TypeGame, "PLAYER" => TypePlayer, "HERO" => TypeHero, "MINION" => TypeMinion, "SPELL" => TypeSpell,
-        "ENCHANTMENT" => TypeEnchantment, "HERO_POWER" => TypeHeroPower, "BATTLEGROUND_SPELL" => TypeTavernSpell, _ => Number(s),
+        "ENCHANTMENT" => TypeEnchantment, "HERO_POWER" => TypeHeroPower, "BATTLEGROUND_SPELL" => TypeTavernSpell,
+        "BATTLEGROUND_TRINKET" => TypeTrinket, _ => Number(s),
     };
 
     public static int PlayState(ReadOnlySpan<char> s) => s switch

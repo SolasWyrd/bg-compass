@@ -5,6 +5,19 @@ using BgCompass.App.ViewModels;
 
 namespace BgCompass.App.Overlay;
 
+/// <summary>Turns the in-game layer off after a problem has been seen on several polls in a row: one glitch is not enough.</summary>
+public sealed class FieldGuard(int strikes = 3)
+{
+    int _seen;
+
+    /// <summary>True once the layer has to go.</summary>
+    public bool Report(string? problem)
+    {
+        _seen = problem is null ? 0 : _seen + 1;
+        return _seen >= strikes;
+    }
+}
+
 /// <summary>
 /// Creates the panel window on demand, keeps it over the game rectangle and shows it while there is a game or a problem to
 /// report. Polls the game window about twice a second (cheap: three Win32 calls) and does nothing when nothing moved.
@@ -22,7 +35,8 @@ public sealed class OverlayManager : IDisposable
     readonly DispatcherTimer _poll, _cursor;
     GameWindowInfo _game;
     UiState _state = UiState.Initial;
-    bool _wasShown;
+    bool _wasShown, _fieldOff;
+    readonly FieldGuard _guard = new();
 
     public OverlayManager(AppHost host, CompassVm vm, FieldVm field, IGameWindowProbe probe, IHotkeys hotkeys, Func<PxRect> screen)
     {
@@ -87,6 +101,7 @@ public sealed class OverlayManager : IDisposable
         try
         {
             var g = ReadGame();
+            GuardField();
             if (g == _game) return;
             _game = g;
             Reconcile();
@@ -119,13 +134,25 @@ public sealed class OverlayManager : IDisposable
         catch (Exception ex) { AppLog.Error("Панель не показалась", ex); }
     }
 
+    /// <summary>The layer must never stand between the player and the game. The hotkey and the setting stay as the manual way out.</summary>
+    void GuardField()
+    {
+        if (_field is not { IsVisible: true } f) return;
+        var problem = f.Problem(_game.Rect);
+        if (!_guard.Report(problem)) return;
+        _fieldOff = true;
+        AppLog.Warn($"Метки на поле выключены: {problem}");
+        _host.SetFieldProblem($"Метки на поле выключены до перезапуска: {problem}.");
+        Reconcile();
+    }
+
     void ReconcileField()
     {
         try
         {
             _fieldVm.SetWidth(_game.Found ? GameField.Width(_game.Rect) : 0);
             _fieldVm.Apply(_state);
-            if (!(_game.Found && _game.ShouldShow && FieldRules.Visible(_state, _host.Settings.Value)))
+            if (_fieldOff || !(_game.Found && _game.ShouldShow && FieldRules.Visible(_state, _host.Settings.Value)))
             {
                 _cursor.Stop();
                 _fieldVm.Hover(null, null);

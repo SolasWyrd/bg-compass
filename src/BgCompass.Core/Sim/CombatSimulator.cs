@@ -41,6 +41,12 @@ public static class CombatSimulator
         if (error is not null) return SimResult.Unavailable(error);
         var tb = Build(s.Enemy, book, unmodelledIds, unmodelledNames, out error);
         if (error is not null) return SimResult.Unavailable(error);
+        // Enough dying Aberrations awaken a Deity that the log's boards do not list, so the fight can turn on a minion not simulated.
+        if (AwakensDeity(s.Friendly, cards) || AwakensDeity(s.Enemy, cards))
+        {
+            unmodelledIds.Add(DeityId);
+            unmodelledNames.Add("Божество");
+        }
         if (unmodelledIds.Count > MaxUnmodelled)
             return SimResult.Unavailable(
                 $"Слишком много существ с несмоделированными эффектами ({unmodelledIds.Count}): {string.Join(", ", unmodelledNames)}. Честных шансов не получится.");
@@ -71,7 +77,7 @@ public static class CombatSimulator
         if (tierB is int tb2 && s.FriendlyHealth is int hp and > 0)
         {
             var lethalFights = 0;
-            for (var i = 0; i < losses; i++) if (taken[i] + tb2 >= hp) lethalFights++;
+            for (var i = 0; i < losses; i++) if (Capped(taken[i] + tb2, s.DamageCap) >= hp) lethalFights++;
             lethal = (1 - eps) * (lethalFights / n) + eps * PriorLoss * 0.5;
         }
 
@@ -80,14 +86,14 @@ public static class CombatSimulator
         {
             Array.Sort(taken, 0, losses);
             var hero = tierB ?? 0;
-            p10 = Rank(taken, losses, 0.10) + hero;
-            p50 = Rank(taken, losses, 0.50) + hero;
-            p90 = Rank(taken, losses, 0.90) + hero;
+            p10 = Capped(Rank(taken, losses, 0.10) + hero, s.DamageCap);
+            p50 = Capped(Rank(taken, losses, 0.50) + hero, s.DamageCap);
+            p90 = Capped(Rank(taken, losses, 0.90) + hero, s.DamageCap);
         }
         if (wins > 0)
         {
             Array.Sort(dealt, 0, wins);
-            dealtP50 = Rank(dealt, wins, 0.50) + (tierA ?? 0);
+            dealtP50 = Capped(Rank(dealt, wins, 0.50) + (tierA ?? 0), s.DamageCap);
         }
 
         return new SimResult(
@@ -97,6 +103,14 @@ public static class CombatSimulator
             (1 - eps) * rl + eps * PriorLoss,
             p10, p50, p90, dealtP50, lethal, iterations, unmodelledNames);
     }
+
+    static int Capped(int damage, int? cap) => cap is int c ? Math.Min(damage, c) : damage;
+
+    const string DeityId = "DEITY";
+    const int DeityDeaths = 4;
+
+    static bool AwakensDeity(IReadOnlyList<MinionView> board, CardCatalog cards) =>
+        board.Count(v => (cards.Resolve(v.CardId)?.Tribes ?? v.Tribes).Contains("ABERRATION")) >= DeityDeaths;
 
     /// <summary>Nearest-rank percentile of the first <paramref name="count"/> sorted values.</summary>
     static int Rank(int[] sorted, int count, double p) => sorted[Math.Max(1, (int)Math.Ceiling(p * count)) - 1];

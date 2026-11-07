@@ -5,7 +5,7 @@ namespace BgCompass.App.Overlay;
 
 // Every Win32 call of the app lives in this file, reached only behind OperatingSystem.IsWindows().
 // What it does: find the Hearthstone window by class and title (or process name), read its client rectangle, learn which window is in
-// front, read where the cursor is, set extended styles on our own windows, and register two global hotkeys. It never opens the game process,
+// front, read where the cursor is, ask which window a point belongs to, set extended styles on our own windows, and register two global hotkeys. It never opens the game process,
 // reads its memory, injects anything or sends input.
 
 [SupportedOSPlatform("windows")]
@@ -19,6 +19,7 @@ internal static class Native
     public const uint WM_HOTKEY = 0x0312, WM_QUIT = 0x0012;
     public const int ERROR_HOTKEY_ALREADY_REGISTERED = 1409;
     public static readonly IntPtr HWND_TOPMOST = new(-1);
+    public const uint GA_ROOT = 2;
     public const uint SWP_NOSIZE = 1, SWP_NOMOVE = 2, SWP_NOACTIVATE = 0x10, LWA_ALPHA = 2;
 
     [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
@@ -26,6 +27,8 @@ internal static class Native
     [StructLayout(LayoutKind.Sequential)] public struct MSG { public IntPtr hwnd; public uint message; public UIntPtr wParam; public IntPtr lParam; public uint time; public POINT pt; }
 
     [DllImport(User32)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool GetCursorPos(out POINT p);
+    [DllImport(User32)] public static extern IntPtr WindowFromPoint(POINT p);
+    [DllImport(User32)] public static extern IntPtr GetAncestor(IntPtr h, uint flags);
     [DllImport(User32, CharSet = CharSet.Unicode, EntryPoint = "FindWindowW")] public static extern IntPtr FindWindow(string cls, string? title);
     [DllImport(User32)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool GetClientRect(IntPtr h, out RECT r);
     [DllImport(User32)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool ClientToScreen(IntPtr h, ref POINT p);
@@ -101,6 +104,13 @@ public static class WindowStyles
         // A window made layered stays invisible until its layer attributes are set; alpha 255 keeps per-pixel transparency.
         if ((want & Native.WS_EX_LAYERED) != 0 && (style & Native.WS_EX_LAYERED) == 0)
             Native.SetLayeredWindowAttributes(hwnd, 0, 255, Native.LWA_ALPHA);
+    }
+
+    /// <summary>False when a click at this screen point would land on the window instead of going through it.</summary>
+    public static bool PassesClicks(IntPtr hwnd, int x, int y)
+    {
+        var hit = Native.WindowFromPoint(new Native.POINT { X = x, Y = y });
+        return hit == IntPtr.Zero || Native.GetAncestor(hit, Native.GA_ROOT) != hwnd;
     }
 
     /// <summary>Puts the window back above the game without activating it.</summary>

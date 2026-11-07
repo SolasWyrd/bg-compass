@@ -29,7 +29,8 @@ public sealed record MinionView(
     bool Golden,
     MinionKeywords Keywords,
     IReadOnlyList<string> Tribes,
-    int TechLevel);
+    int TechLevel,
+    int Cost = 3);
 
 public sealed record HeroOption(int EntityId, string CardId, string Name, int Position, int Slot = -1)
 {
@@ -68,6 +69,9 @@ public sealed record Encounter(
     int? DamageToEnemy);
 
 /// <summary>Both boards as logged before the first attack. Complete=false means do not simulate.</summary>
+/// <summary>A card the game offers to pick: a trinket, a triple reward, a Discover.</summary>
+public sealed record ChoiceCard(int EntityId, string CardId, string Name);
+
 public sealed record CombatSnapshot(
     int Round,
     int OpponentPlayerId,
@@ -79,7 +83,9 @@ public sealed record CombatSnapshot(
     int? FriendlyHealth,
     int? EnemyHealth,
     bool Complete,
-    string? IncompleteReason);
+    string? IncompleteReason,
+    /// <summary>The most a lost fight can cost this round; null when the game has no limit.</summary>
+    int? DamageCap = null);
 
 public sealed record MatchSnapshot(
     MatchPhase Phase,
@@ -104,6 +110,19 @@ public sealed record MatchSnapshot(
     /// <summary>Minions in the local hand, known only for triple detection.</summary>
     IReadOnlyList<MinionView>? Hand = null)
 {
+    public const int DefaultMaxTier = 6;
+
+    /// <summary>What the tavern upgrade costs now; null at the top tier or before the log has said.</summary>
+    public int? UpgradeCost { get; init; }
+    public int? RefreshCost { get; init; }
+    /// <summary>The highest tier this hero can reach. Some effects raise it to 7.</summary>
+    public int MaxTier { get; init; } = DefaultMaxTier;
+    /// <summary>The most damage one fight can deal this round; it rises as the game goes on.</summary>
+    public int? DamageCap { get; init; }
+    public IReadOnlyList<MinionView> ShopSpells { get; init; } = [];
+    public IReadOnlyList<ChoiceCard> Choices { get; init; } = [];
+    public IReadOnlyList<string> Trinkets { get; init; } = [];
+
     public static readonly MatchSnapshot Empty = new(
         MatchPhase.Idle, null, 0, null, null, null, null,
         [], [], [], [], [], new HashSet<string>(), null, null);

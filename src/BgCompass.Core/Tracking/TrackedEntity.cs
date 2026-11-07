@@ -11,7 +11,7 @@ internal sealed class TrackedEntity
     public string? CardId;
     public string? Name;
     public int Controller, Zone, ZonePos, CardType;
-    public int Atk, Health, Damage, Armor, Premium, TechLevel, IsPool;
+    public int Atk, Health, Damage, Armor, Premium, TechLevel, IsPool, Cost = -1, MaxTech;
     public string? Race;
     public MinionKeywords Keywords;
 

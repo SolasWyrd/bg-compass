@@ -11,6 +11,7 @@ namespace BgCompass.Core.Advice;
 public static class BoardAdvisor
 {
     const int ListCap = 6;
+    const double TribeShare = 0.5;
 
     // Tavern tier a standard game reaches by a given round: tier 2 on round 2, 3 on 4, 4 on 6, 5 on 8.
     // This is bgtracker's "standard" leveling curve (data/curves.json, MIT, an editor's consensus, not a
@@ -18,7 +19,7 @@ public static class BoardAdvisor
     // reported when the player is two tiers or more behind it.
     static readonly (int Round, int Tier)[] Curve = [(2, 2), (4, 3), (6, 4), (8, 5)];
 
-    static int ExpectedTier(int round) => 1 + Curve.Count(c => round >= c.Round);
+    public static int ExpectedTier(int round) => 1 + Curve.Count(c => round >= c.Round);
 
     static readonly Regex ShieldPayoff = new(
         @"(with|loses|lose|gains?|gives?|for each)\b.{0,40}Divine Shield|Divine Shield.{0,30}(until next turn|when|while)",
@@ -125,16 +126,22 @@ public static class BoardAdvisor
         // Pool cards worth suggesting: solo only, and not a card whose every tribe is out of this game.
         var pool = cards.PoolMinions.Where(c => !c.IsDuosExclusive && !OnlyExcludedTribes(c, excluded)).ToList();
 
+        // The tribe the board is made of decides the build. A tribeless family needs its whole engine to compete with it:
+        // one Battlecry on a Murloc board does not make a Battlecry build.
+        var boardTribes = CountTribes(board);
+        double Share(string? t) => t is null || board.Count == 0 ? 0 : boardTribes.GetValueOrDefault(t) / (double)board.Count;
+        var committed = boardTribes.Count > 0 && boardTribes.Values.Max() >= 2 && boardTribes.Values.Max() / (double)board.Count >= TribeShare;
+
         var scored = archetypes.Families
             .Where(f => f.Tribe is null || !excluded.Contains(f.Tribe))
-            .Select(f => (Family: f, Cover: archetypes.Cover(f, board.Select(p => p.Card))))
-            .Where(x => x.Cover.Fit > 0)
-            .OrderByDescending(x => x.Cover.Fit).ThenByDescending(x => x.Cover.CoreCards.Count).ThenBy(x => x.Family.Id)
+            .Select(f => (Family: f, Cover: archetypes.Cover(f, board.Select(p => p.Card)), Fit: Blend(archetypes.Cover(f, board.Select(p => p.Card)).Fit, Share(f.Tribe))))
+            .Where(x => x.Fit > 0 && !(committed && x.Family.Tribe is null && x.Cover.MissingCoreRoles.Count > 0))
+            .OrderByDescending(x => x.Fit).ThenByDescending(x => x.Cover.CoreCards.Count).ThenBy(x => x.Family.Id)
             .Take(3)
             .ToList();
 
         var result = new List<ArchetypeFit>();
-        foreach (var (family, cover) in scored)
+        foreach (var (family, cover, fit) in scored)
         {
             int Roles(CardInfo c) => family.Core.Count(r => Archetypes.Matches(family, r, c));
             CardRef Ref(CardInfo c, bool board) => new(c.Id, c.Name, c.Tier ?? 0, c.Tribes, board, inShop.Contains(c.Id));
@@ -150,7 +157,7 @@ public static class BoardAdvisor
             var lines = new List<AdviceLine>
             {
                 new(AdviceSource.Fact,
-                    $"Покрытие плана {AdviceText.Num(cover.Fit * 100, "0")}%: так стол закрывает нужные роли. Это не шанс на победу."),
+                    $"Билд собран на {AdviceText.Num(fit * 100, "0")}%: доля этого типа на столе и закрытые роли. Это не шанс на победу."),
                 new(AdviceSource.Rule, $"План: {family.Plan} (эвристика, а не измерение; от {AdviceText.Date(family.Updated)})"),
             };
             if (cover.MissingCoreRoles.Count > 0)
@@ -161,12 +168,15 @@ public static class BoardAdvisor
             if (family.Tribe is not null && !m.ConfirmedTribes.Contains(family.Tribe))
                 lines.Add(new(AdviceSource.Limit, $"Племя «{TribeNames.Ru(family.Tribe)}» ещё не замечено в лобби."));
 
-            result.Add(new ArchetypeFit(family.Id, family.Name, family.Tribe, cover.Fit,
+            result.Add(new ArchetypeFit(family.Id, family.Name, family.Tribe, fit,
                 cover.CoreCards.Select(c => Ref(c, true)).ToList(), missingNow, next, lines));
         }
 
         return AddTransitions(result);
     }
+
+    /// <summary>How far a build has come: the roles it fills, or for a tribe build the minions of that tribe, whichever says more.</summary>
+    static double Blend(double roles, double tribeShare) => Math.Max(roles, 0.6 * tribeShare + 0.4 * roles);
 
     static bool OnlyExcludedTribes(CardInfo c, IReadOnlySet<string> excluded) =>
         c.Tribes.Count > 0 && !c.Tribes.Contains("ALL") && c.Tribes.All(excluded.Contains);

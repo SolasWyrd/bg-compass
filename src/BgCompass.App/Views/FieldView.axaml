@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BgCompass.App.ViewModels"
+             xmlns:v="using:BgCompass.App.Views"
              x:Class="BgCompass.App.Views.FieldView"
              x:DataType="vm:FieldVm"
              IsHitTestVisible="False">
@@ -13,12 +14,21 @@
           <Panel IsVisible="{Binding IsCard}">
             <!-- The ink edge keeps the ring visible on golden cards and their glow. -->
             <Border Classes="fieldedge" Margin="0,0,0,16">
-              <Border Classes="fieldring" Classes.fact="{Binding IsTriple}" />
+              <Border Classes="fieldring" Classes.fact="{Binding IsTriple}" Classes.sell="{Binding IsSell}" />
             </Border>
-            <Border Classes="fieldtag card" Classes.fact="{Binding IsTriple}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <Border Classes="fieldtag card" Classes.fact="{Binding IsTriple}" Classes.sell="{Binding IsSell}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
               <TextBlock Text="{Binding Label}" />
             </Border>
           </Panel>
+          <Border Classes="fieldtag card" IsVisible="{Binding IsTag}" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <TextBlock Text="{Binding Label}" />
+          </Border>
+          <Border Classes="fieldstat" IsVisible="{Binding IsStat}" Classes.accent="{Binding Strong}" Classes.alert="{Binding Alert}" Classes.old="{Binding Muted}">
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="{Binding Label}" Classes="value" />
+              <TextBlock Text="{Binding Sub}" Classes="caption" />
+            </StackPanel>
+          </Border>
           <Border Classes="fieldhero" IsVisible="{Binding IsHero}" Classes.best="{Binding Strong}">
             <StackPanel Orientation="Horizontal" Spacing="8">
               <Border Classes="tile" Classes.none="{Binding NotMeasured}" Classes.lime="{Binding HeroLime}" Classes.outline="{Binding Guess}">
@@ -41,6 +51,7 @@
       <Panel>
         <TextBlock Text="{Binding Odds.Message}" IsVisible="{Binding Odds.HasMessage}" Classes="dim" HorizontalAlignment="Center" VerticalAlignment="Center" />
         <StackPanel IsVisible="{Binding Odds.HasResult}" Spacing="5">
+          <TextBlock Text="{Binding OddsCaption}" IsVisible="{Binding HasOddsCaption}" Classes="tiny dim" HorizontalAlignment="Center" />
           <Grid ColumnDefinitions="*,Auto,*,Auto">
             <TextBlock Text="{Binding Odds.WinText}" Classes="title accent" />
             <TextBlock Grid.Column="1" Text="{Binding Odds.TieText}" Classes="title dim" />
@@ -63,10 +74,22 @@
       </Panel>
     </Border>
 
-    <Border Classes="panel fieldpopup" IsVisible="{Binding HasPopup}" Margin="{Binding Popup.Margin, FallbackValue=0}" HorizontalAlignment="Left" VerticalAlignment="Top">
-      <StackPanel Spacing="4">
+    <Border Classes="panel fieldpopup" IsVisible="{Binding HasPopup}" Margin="{Binding Popup.Margin, FallbackValue=0}" Width="{Binding Popup.BoxWidth, FallbackValue=264}" HorizontalAlignment="Left" VerticalAlignment="Top">
+      <StackPanel Spacing="6">
         <TextBlock Text="{Binding Popup.Title, FallbackValue=''}" Classes="bold" />
         <TextBlock Text="{Binding Popup.Body, FallbackValue=''}" Classes="small dim" IsVisible="{Binding Popup.HasBody, FallbackValue=False}" />
+        <ItemsControl ItemsSource="{Binding Popup.Minions, FallbackValue={x:Null}}" IsVisible="{Binding Popup.HasMinions, FallbackValue=False}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:PopupMinion">
+            <StackPanel Width="68" Spacing="2">
+              <Border Classes="fieldminion" Classes.golden="{Binding Golden}">
+                <v:ArtImage CardId="{Binding CardId}" Stretch="UniformToFill" />
+              </Border>
+              <TextBlock Text="{Binding Stats}" Classes="small bold" HorizontalAlignment="Center" />
+              <TextBlock Text="{Binding Name}" Classes="tiny dim one" HorizontalAlignment="Center" />
+            </StackPanel>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
       </StackPanel>
     </Border>
   </Panel>

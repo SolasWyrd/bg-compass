@@ -49,6 +49,18 @@ public sealed class FieldWindow : Window
         _scaler.LayoutTransform = new ScaleTransform(k, k);
     }
 
+    /// <summary>
+    /// What would make this layer get in the way of the game: it is opaque, or it takes the clicks. Styles are put back
+    /// first in case the window lost them.
+    /// </summary>
+    public string? Problem(PxRect game)
+    {
+        Platform.ApplyOverlayStyles(this, clickThrough: true);
+        if (ActualTransparencyLevel == WindowTransparencyLevel.None) return "Windows не дал окну прозрачность";
+        var (x, y) = ((int)(game.X + game.W / 2), (int)(game.Y + game.H / 2));
+        return Platform.PassesClicks(this, x, y) ? null : "окно перехватывало клики";
+    }
+
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);

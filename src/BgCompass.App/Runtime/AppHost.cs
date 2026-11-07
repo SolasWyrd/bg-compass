@@ -26,7 +26,8 @@ public sealed class AppHost : IDisposable
     readonly object _gate = new();
     readonly ThrottledPublisher<UiState> _publisher;
     readonly AdvicePipeline _pipeline;
-    readonly SimRunner _sim;
+    readonly SimRunner _sim, _preview;
+    string? _fieldProblem;
     readonly Archetypes _archetypes = Archetypes.LoadEmbedded();
     readonly HttpClient _http;
     readonly Timer _logWatch;
@@ -55,6 +56,7 @@ public sealed class AppHost : IDisposable
         Art = new ArtCache(Paths.ArtCache, options.Offline ? null : _http);
         _pipeline = new AdvicePipeline(() => History.HeroStatsByHero(Cards.Current));
         _sim = new SimRunner(Recompute);
+        _preview = new SimRunner(Recompute);
         _publisher = new ThrottledPublisher<UiState>(
             s => StateChanged?.Invoke(s), options.Post, options.MinUiInterval ?? TimeSpan.FromMilliseconds(200));
         _tracker = NewTracker("session", null);
@@ -165,6 +167,13 @@ public sealed class AppHost : IDisposable
         Recompute();
     }
 
+    /// <summary>The overlay switched the in-game layer off; settings say why.</summary>
+    public void SetFieldProblem(string problem)
+    {
+        lock (_gate) _fieldProblem = problem;
+        Recompute();
+    }
+
     /// <summary>Called by the updater (any thread) once a new version is installed.</summary>
     public void SetUpdateReady(string? version)
     {
@@ -258,13 +267,17 @@ public sealed class AppHost : IDisposable
             var marked = Marks.Current;
             var (hero, board) = _pipeline.Advise(m, cat, marked, _historyRev);
             var sim = _sim.Update(m, cat);
+            var preview = _preview.Update(Core.Sim.CombatPreview.For(m), cat);
             var cards = new CardsStatus(true, _refreshing, cat.Version, Cards.Warning, m.BuildNumber);
             var prev = _state;
+            var turn = m.Phase != MatchPhase.Recruit ? null
+                : ReferenceEquals(prev.Match, m) && ReferenceEquals(prev.Board, board) && ReferenceEquals(prev.Catalog, cat) && prev.Turn is not null ? prev.Turn
+                : Core.Advice.TurnAdvisor.Plan(m, cat, board);
             if (ReferenceEquals(prev.Match, m) && ReferenceEquals(prev.Hero, hero) && ReferenceEquals(prev.Board, board)
-                && prev.Sim == sim && prev.AbsentTribes.SetEquals(marked) && prev.Cards == cards
+                && prev.Sim == sim && prev.Preview == preview && prev.FieldProblem == _fieldProblem && prev.AbsentTribes.SetEquals(marked) && prev.Cards == cards
                 && prev.Log == _log && prev.UpdateReadyVersion == _updateReady && ReferenceEquals(prev.Catalog, cat) && prev.IsReplay == IsReplay)
                 return;
-            _state = new UiState(m, hero, board, sim, marked, cards, _log, cat, IsReplay, prev.Revision + 1) { UpdateReadyVersion = _updateReady };
+            _state = new UiState(m, hero, board, sim, marked, cards, _log, cat, IsReplay, prev.Revision + 1) { UpdateReadyVersion = _updateReady, Preview = preview, PreviewCombat = _preview.Current, Turn = turn, FieldProblem = _fieldProblem };
             _publisher.Publish(_state);
         }
     }

@@ -330,6 +330,10 @@ public sealed class SettingsVm : ViewModelBase
         }
     }
 
+    string _fieldProblem = "";
+    public string FieldProblem { get => _fieldProblem; private set { if (Set(ref _fieldProblem, value)) Raise(nameof(HasFieldProblem)); } }
+    public bool HasFieldProblem => _fieldProblem.Length > 0;
+
     public bool FieldMarks
     {
         get => _host.Settings.Value.FieldMarks;
@@ -441,6 +445,7 @@ public sealed class SettingsVm : ViewModelBase
         }
         CardsWarning = cs.Warning ?? "";
         _updateVersion = s.UpdateReadyVersion;
+        FieldProblem = s.FieldProblem ?? "";
         Raise(nameof(HasUpdate)); Raise(nameof(NoUpdate)); Raise(nameof(UpdateText));
     }
 }

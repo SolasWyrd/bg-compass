@@ -56,6 +56,7 @@ public sealed partial class MatchTracker
 
         var board = MinionsOf(g, g.LocalPid).ConvertAll(ToView);
         IReadOnlyList<MinionView> shop = [];
+        var shopSpells = new List<MinionView>();
         int shopSize = 0;
         if (phase == MatchPhase.Recruit && AiPid(g) != 0)
         {
@@ -68,7 +69,10 @@ public sealed partial class MatchTracker
             foreach (var e in g.Ents.Values)
                 if (e.Controller == ai && e.Zone == TagValues.ZonePlay && e.ZonePos > 0 && !e.BornInCombat
                     && (e.IsMinion || e.CardType is TagValues.TypeSpell or TagValues.TypeTavernSpell))
+                {
                     shopSize++;
+                    if (!e.IsMinion && !string.IsNullOrEmpty(e.CardId)) shopSpells.Add(ToView(e));
+                }
         }
 
         var hand = new List<MinionView>();
@@ -87,7 +91,30 @@ public sealed partial class MatchTracker
             (g.LocalPid != 0 ? SeatTier(g, g.LocalPid) : null) ?? hero?.PlayerTech ?? localPlayer?.PlayerTech, gold,
             heroOffers, board, shop, BuildPlayers(g), g.Encounters.ToArray(),
             g.Confirmed.Count == 0 ? NoTribes : g.Confirmed.ToFrozenSet(StringComparer.Ordinal),
-            g.Combat?.Snap, g.Ended ? hero?.Place : null, g.IsDuos, shopSize, hand);
+            g.Combat?.Snap, g.Ended ? hero?.Place : null, g.IsDuos, shopSize, hand)
+        {
+            UpgradeCost = phase == MatchPhase.Recruit ? ButtonCost(g, "TB_BaconShopTechUp") : null,
+            RefreshCost = phase == MatchPhase.Recruit ? ButtonCost(g, "TB_BaconShop_8p_Reroll_Button") : null,
+            MaxTier = hero is { MaxTech: > 0 } ? hero.MaxTech : MatchSnapshot.DefaultMaxTier,
+            DamageCap = g.DamageCapOn ? g.DamageCap : null,
+            ShopSpells = shopSpells,
+            Choices = g.Choices.ConvertAll(r => new ChoiceCard(r.Id, r.CardId!, r.Name ?? r.CardId!)),
+            Trinkets = g.Ents.Values.Where(e => e.CardType == TagValues.TypeTrinket && e.Zone == TagValues.ZonePlay
+                    && e.Controller == g.LocalPid && !string.IsNullOrEmpty(e.CardId)
+                    && !e.CardId!.EndsWith("_1st", StringComparison.Ordinal) && !e.CardId.EndsWith("_2nd", StringComparison.Ordinal))
+                .Select(e => e.CardId!).Distinct().ToList(),
+        };
+    }
+
+    /// <summary>What a tavern button costs now. The game makes a new button entity for each tier, so the newest in play counts.</summary>
+    private static int? ButtonCost(Game g, string cardPrefix)
+    {
+        TrackedEntity? best = null;
+        foreach (var e in g.Ents.Values)
+            if (e.Zone == TagValues.ZonePlay && e.Controller == g.LocalPid && e.Cost >= 0
+                && e.CardId is { } c && c.StartsWith(cardPrefix, StringComparison.Ordinal) && (best is null || e.Id > best.Id))
+                best = e;
+        return best?.Cost;
     }
 
     private static List<HeroOption> HandHeroes(Game g)

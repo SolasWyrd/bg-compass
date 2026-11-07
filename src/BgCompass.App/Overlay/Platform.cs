@@ -25,6 +25,10 @@ public static class Platform
     public static (int X, int Y)? CursorPosition() =>
         OperatingSystem.IsWindows() && Native.GetCursorPos(out var p) ? (p.X, p.Y) : null;
 
+    /// <summary>Whether a click at the screen point falls through the window. Always true outside Windows.</summary>
+    public static bool PassesClicks(Window window, int x, int y) =>
+        !OperatingSystem.IsWindows() || window.TryGetPlatformHandle()?.Handle is not { } h || WindowStyles.PassesClicks(h, x, y);
+
     public static void RaiseTopmost(Window window)
     {
         if (!OperatingSystem.IsWindows()) return;
