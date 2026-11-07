@@ -25,6 +25,9 @@ internal sealed class TrackedEntity
     public int PlayerId;
     public int? Place, PlayerTech, Triples;
 
+    /// <summary>Order of the last leaderboard place written here: the game keeps a seat's tier, armor and damage on that copy.</summary>
+    public int SeatTick;
+
     /// <summary>Created while a combat round was running: a combat copy, not a shop or seat entity.</summary>
     public bool BornInCombat;
 

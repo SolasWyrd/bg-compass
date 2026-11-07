@@ -6,6 +6,7 @@ public readonly record struct PxRect(double X, double Y, double W, double H)
 {
     public double Right => X + W;
     public double Bottom => Y + H;
+    public bool Contains(double x, double y) => x >= X && x < Right && y >= Y && y < Bottom;
     public bool Intersects(PxRect o) => X < o.Right && o.X < Right && Y < o.Bottom && o.Y < Bottom;
 }
 

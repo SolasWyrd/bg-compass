@@ -52,7 +52,7 @@ public sealed class Shell : IDisposable
         var hotkeys = Platform.CreateHotkeys();
         var catalog = new CatalogVm();
         var stats = new StatsVm(_host);
-        _overlay = new OverlayManager(_host, compass, Platform.CreateProbe(PrimaryScreen), hotkeys, PrimaryScreen);
+        _overlay = new OverlayManager(_host, compass, new FieldVm(settings), Platform.CreateProbe(PrimaryScreen), hotkeys, PrimaryScreen);
         var settingsVm = new SettingsVm(_host, hotkeys, PickFolder, _overlay.ResetPositions);
         _mainVm = new MainVm(catalog, stats, settingsVm, replay);
         _main.DataContext = _mainVm;

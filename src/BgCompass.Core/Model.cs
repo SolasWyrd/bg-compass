@@ -31,7 +31,11 @@ public sealed record MinionView(
     IReadOnlyList<string> Tribes,
     int TechLevel);
 
-public sealed record HeroOption(int EntityId, string CardId, string Name, int Position);
+public sealed record HeroOption(int EntityId, string CardId, string Name, int Position, int Slot = -1)
+{
+    /// <summary>0-based place on screen, left to right. The log lists offers in another order than they are shown.</summary>
+    public int ScreenSlot => Slot >= 0 ? Slot : Position;
+}
 
 /// <summary>One lobby seat as the leaderboard exposes it. Null = the log has not said.</summary>
 public sealed record PlayerView(
@@ -94,7 +98,11 @@ public sealed record MatchSnapshot(
     IReadOnlySet<string> ConfirmedTribes,
     CombatSnapshot? Combat,
     int? FinalPlace,
-    bool IsDuos = false)
+    bool IsDuos = false,
+    /// <summary>Cards in Bob's row, tavern spells included. The row centers on this count.</summary>
+    int ShopSize = 0,
+    /// <summary>Minions in the local hand, known only for triple detection.</summary>
+    IReadOnlyList<MinionView>? Hand = null)
 {
     public static readonly MatchSnapshot Empty = new(
         MatchPhase.Idle, null, 0, null, null, null, null,

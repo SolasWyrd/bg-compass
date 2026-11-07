@@ -49,19 +49,33 @@ public sealed partial class MatchTracker
         var localPlayer = g.LocalPid != 0 ? g.PlayerEntities.GetValueOrDefault(g.LocalPid) : null;
 
         var heroOffers = new List<HeroOption>(g.Offers.Count);
+        var onScreen = g.Offers.OrderBy(o => g.Ents.GetValueOrDefault(o.Id)?.ZonePos ?? 0).ToList();
         for (int i = 0; i < g.Offers.Count; i++)
-            heroOffers.Add(new HeroOption(g.Offers[i].Id, g.Offers[i].CardId, g.Offers[i].Name, i));
+            heroOffers.Add(new HeroOption(g.Offers[i].Id, g.Offers[i].CardId, g.Offers[i].Name, i, onScreen.IndexOf(g.Offers[i])));
         if (heroOffers.Count == 0 && !g.HeroChosen) heroOffers = HandHeroes(g);
 
         var board = MinionsOf(g, g.LocalPid).ConvertAll(ToView);
         IReadOnlyList<MinionView> shop = [];
+        int shopSize = 0;
         if (phase == MatchPhase.Recruit && AiPid(g) != 0)
         {
             var list = new List<MinionView>();
             foreach (var m in MinionsOf(g, AiPid(g)))
                 if (!m.BornInCombat) list.Add(ToView(m));
             shop = list;
+            // Tavern spells share the row with the minions, so a minion's place on screen depends on them too.
+            int ai = AiPid(g);
+            foreach (var e in g.Ents.Values)
+                if (e.Controller == ai && e.Zone == TagValues.ZonePlay && e.ZonePos > 0 && !e.BornInCombat
+                    && (e.IsMinion || e.CardType is TagValues.TypeSpell or TagValues.TypeTavernSpell))
+                    shopSize++;
         }
+
+        var hand = new List<MinionView>();
+        if (phase == MatchPhase.Recruit && g.LocalPid != 0)
+            foreach (var e in g.Ents.Values)
+                if (e.IsMinion && e.Zone == TagValues.ZoneHand && e.Controller == g.LocalPid && !string.IsNullOrEmpty(e.CardId))
+                    hand.Add(ToView(e));
 
         int? gold = null;
         if (phase == MatchPhase.Recruit && localPlayer is { HasResources: true })
@@ -70,10 +84,10 @@ public sealed partial class MatchTracker
         return new MatchSnapshot(
             phase, g.Build, (g.Turn + 1) / 2,
             hero?.CardId, hero is null ? null : hero.Name ?? hero.CardId,
-            hero?.PlayerTech ?? localPlayer?.PlayerTech, gold,
+            (g.LocalPid != 0 ? SeatTier(g, g.LocalPid) : null) ?? hero?.PlayerTech ?? localPlayer?.PlayerTech, gold,
             heroOffers, board, shop, BuildPlayers(g), g.Encounters.ToArray(),
             g.Confirmed.Count == 0 ? NoTribes : g.Confirmed.ToFrozenSet(StringComparer.Ordinal),
-            g.Combat?.Snap, g.Ended ? hero?.Place : null, g.IsDuos);
+            g.Combat?.Snap, g.Ended ? hero?.Place : null, g.IsDuos, shopSize, hand);
     }
 
     private static List<HeroOption> HandHeroes(Game g)
@@ -105,11 +119,12 @@ public sealed partial class MatchTracker
             group.Sort((a, b) => b.Id.CompareTo(a.Id));
             var primary = SeatHero(g, pid)!;
             int? place = primary.Place ?? group.Select(x => x.Place).FirstOrDefault(x => x is not null);
-            int? tier = primary.PlayerTech ?? group.Select(x => x.PlayerTech).FirstOrDefault(x => x is not null);
+            int? tier = SeatTier(g, pid);
             int? triples = primary.Triples ?? group.Select(x => x.Triples).FirstOrDefault(x => x is not null);
             var withHealth = primary.Health > 0 ? primary : group.FirstOrDefault(x => x.Health > 0);
-            bool known = withHealth is not null;
-            int health = known ? withHealth!.Health - withHealth.Damage : 0;
+            int? left = HeroHealth(withHealth);
+            bool known = left is not null;
+            int health = left ?? 0;
             bool local = pid == g.LocalPid;
             result.Add(new PlayerView(
                 pid, primary.CardId ?? "", primary.Name ?? primary.CardId ?? "", local, place, tier,

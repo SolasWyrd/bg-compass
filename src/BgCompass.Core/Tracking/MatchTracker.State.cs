@@ -33,6 +33,7 @@ public sealed partial class MatchTracker
     private sealed class Game
     {
         public bool HasStart, Started, Ignored, Ended, AwaitPtlCreate;
+        public int SeatTicks;
         public TimeSpan StartTime;
         public int StartDay;
         public int? Build;
@@ -137,7 +138,7 @@ public sealed partial class MatchTracker
             case GameTag.Resources: e.Resources = value; e.HasResources = true; break;
             case GameTag.ResourcesUsed: e.ResourcesUsed = value; e.HasResources = true; break;
             case GameTag.PlayerId: e.PlayerId = value; break;
-            case GameTag.LeaderboardPlace: e.Place = value; break;
+            case GameTag.LeaderboardPlace: e.Place = value; e.SeatTick = ++g.SeatTicks; break;
             case GameTag.PlayerTechLevel: e.PlayerTech = value; break;
             case GameTag.PlayerTriples: e.Triples = value; break;
             case GameTag.IsBaconPoolMinion: e.IsPool = value; if (value != 0) _poolTagSeen = true; break;
@@ -229,20 +230,34 @@ public sealed partial class MatchTracker
         string.IsNullOrEmpty(e.Race) || e.Race == "INVALID" ? [] : [e.Race], e.TechLevel);
 
     /// <summary>
-    /// Hero entity that represents the seat of <paramref name="pid"/>: the local hero for the local seat, else the newest
-    /// hero carrying that PLAYER_ID (a re-created hero gets a new id; combat copies carry no PLAYER_ID at all).
+    /// Hero entity that represents the seat of <paramref name="pid"/>. The game writes a seat's leaderboard place, tier, armor
+    /// and damage to one copy of the hero and resets them on the copies it creates for combat, so the copy that last got a
+    /// place wins. Before any place: the local hero for the local seat, else the newest hero carrying that PLAYER_ID.
     /// </summary>
     private static TrackedEntity? SeatHero(Game g, int pid)
     {
-        TrackedEntity? best = null;
+        TrackedEntity? best = null, local = null;
         foreach (var e in g.Ents.Values)
         {
             if (!e.IsHero || e.PlayerId != pid || IsPlaceholderHero(e.CardId)) continue;
-            if (pid == g.LocalPid && e.Id == g.LocalHeroId) return e;
-            if (best is null || e.Id > best.Id) best = e;
+            if (pid == g.LocalPid && e.Id == g.LocalHeroId) local = e;
+            if (best is null || (e.SeatTick, e.Id).CompareTo((best.SeatTick, best.Id)) > 0) best = e;
         }
-        return best;
+        return best is { SeatTick: 0 } ? local ?? best : best;
     }
+
+    /// <summary>The seat's tavern tier: combat copies carry 0, which is never a real tier.</summary>
+    private static int? SeatTier(Game g, int pid)
+    {
+        if (SeatHero(g, pid) is { PlayerTech: > 0 } seat) return seat.PlayerTech;
+        TrackedEntity? best = null;
+        foreach (var e in g.Ents.Values)
+            if (e.IsHero && e.PlayerId == pid && e.PlayerTech > 0 && (best is null || e.Id > best.Id)) best = e;
+        return best?.PlayerTech;
+    }
+
+    /// <summary>Damage the hero can still take: armor counts, and may be all that keeps it above zero.</summary>
+    private static int? HeroHealth(TrackedEntity? e) => e is { Health: > 0 } ? e.Health - e.Damage + e.Armor : null;
 
     private const string ControllersUnknown = "controllers unknown";
     private const string EnemyUnreadable = "enemy side unreadable";
@@ -270,7 +285,7 @@ public sealed partial class MatchTracker
                 if (pid != g.LocalPid && SeatHero(g, pid)?.CardId == hc) { opp = pid; break; }
         }
         var seat = opp != 0 ? SeatHero(g, opp) : null;
-        var localSeat = LocalHero(g);
+        var localSeat = SeatHero(g, g.LocalPid) ?? LocalHero(g);
 
         if (reason is null && theirs.Count == 0 && aiHero is null) reason = EnemyUnreadable;
         if (reason is null && (mine.Any(m => string.IsNullOrEmpty(m.CardId)) || theirs.Any(m => string.IsNullOrEmpty(m.CardId))))
@@ -279,10 +294,10 @@ public sealed partial class MatchTracker
         return new CombatSnapshot(
             c.Round, opp, seat?.CardId ?? aiHero?.CardId ?? "",
             mine.ConvertAll(ToView), theirs.ConvertAll(ToView),
-            localSeat?.PlayerTech ?? PlayerEnt(g, g.LocalPid)?.PlayerTech,
-            seat?.PlayerTech,
-            localSeat is { Health: > 0 } ? localSeat.Health - localSeat.Damage : null,
-            seat is { Health: > 0 } ? seat.Health - seat.Damage : null,
+            SeatTier(g, g.LocalPid) ?? PlayerEnt(g, g.LocalPid)?.PlayerTech,
+            opp != 0 ? SeatTier(g, opp) : null,
+            HeroHealth(localSeat),
+            HeroHealth(seat),
             reason is null, reason);
     }
 

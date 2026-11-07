@@ -5,7 +5,7 @@ namespace BgCompass.App.Overlay;
 
 // Every Win32 call of the app lives in this file, reached only behind OperatingSystem.IsWindows().
 // What it does: find the Hearthstone window by class and title (or process name), read its client rectangle, learn which window is in
-// front, set extended styles on our own windows, and register two global hotkeys. It never opens the game process,
+// front, read where the cursor is, set extended styles on our own windows, and register two global hotkeys. It never opens the game process,
 // reads its memory, injects anything or sends input.
 
 [SupportedOSPlatform("windows")]
@@ -25,6 +25,7 @@ internal static class Native
     [StructLayout(LayoutKind.Sequential)] public struct POINT { public int X, Y; }
     [StructLayout(LayoutKind.Sequential)] public struct MSG { public IntPtr hwnd; public uint message; public UIntPtr wParam; public IntPtr lParam; public uint time; public POINT pt; }
 
+    [DllImport(User32)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool GetCursorPos(out POINT p);
     [DllImport(User32, CharSet = CharSet.Unicode, EntryPoint = "FindWindowW")] public static extern IntPtr FindWindow(string cls, string? title);
     [DllImport(User32)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool GetClientRect(IntPtr h, out RECT r);
     [DllImport(User32)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool ClientToScreen(IntPtr h, ref POINT p);

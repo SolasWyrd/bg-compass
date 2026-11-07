@@ -21,6 +21,10 @@ public static class Platform
         if (window.TryGetPlatformHandle()?.Handle is { } h) WindowStyles.Apply(h, clickThrough);
     }
 
+    /// <summary>Cursor position in physical pixels; null where it cannot be read. Only reads it.</summary>
+    public static (int X, int Y)? CursorPosition() =>
+        OperatingSystem.IsWindows() && Native.GetCursorPos(out var p) ? (p.X, p.Y) : null;
+
     public static void RaiseTopmost(Window window)
     {
         if (!OperatingSystem.IsWindows()) return;

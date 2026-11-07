@@ -80,6 +80,10 @@ public static class RenderUi
                 foreach (var (sn, scale) in Scales)
                     Panels(name, state, sn, scale);
 
+            foreach (var (name, state) in scenarios)
+                if (name is "recruit" or "heropick" or "combat" or "combat-running") Field(name, state);
+            Guides(_demo.State(recruit, _host.History));
+
             var ui = _demo.State(recruit, _host.History);
             Main(ui, "recruit");
             Main(_demo.State(MatchSnapshot.Empty, _host.History, log: DemoScenario.LogDisabled,
@@ -102,6 +106,37 @@ public static class RenderUi
                 Save(w, $"{scenario}_{tabs[t]}_{scaleName}.png");
                 w.Close();
             }
+        }
+
+        /// <summary>The layer over a plain table colour, at two window shapes, with the first mark hovered.</summary>
+        void Field(string scenario, UiState state)
+        {
+            foreach (var (shape, game) in new (string, PxRect)[] { ("16x9", new(0, 0, 1920, 1080)), ("21x9", new(0, 0, 2560, 1080)) })
+            {
+                var vm = new FieldVm(_host.Settings);
+                vm.SetWidth(GameField.Width(game));
+                vm.Apply(state);
+                var hover = vm.Marks.FirstOrDefault(k => k.Kind is FieldMarkKind.Triple or FieldMarkKind.Buy or FieldMarkKind.Hero or FieldMarkKind.Odds);
+                if (hover is not null) vm.Hover(hover.Hit.X + 2, hover.Hit.Y + 2);
+                var w = new FieldWindow(vm) { Background = FieldBackdrop };
+                w.Follow(game);
+                Save(w, $"field_{scenario}_{shape}.png");
+                w.Close();
+            }
+        }
+
+        void Guides(UiState state)
+        {
+            _host.Settings.Value.FieldGuides = true;
+            var game = new PxRect(0, 0, 1920, 1080);
+            var vm = new FieldVm(_host.Settings);
+            vm.SetWidth(GameField.Width(game));
+            vm.Apply(state);
+            var w = new FieldWindow(vm) { Background = FieldBackdrop };
+            w.Follow(game);
+            Save(w, "field_guides_16x9.png");
+            w.Close();
+            _host.Settings.Value.FieldGuides = false;
         }
 
         void Main(UiState state, string name)
@@ -127,6 +162,11 @@ public static class RenderUi
         }
 
         static readonly IBrush Backdrop = new SolidColorBrush(Color.FromRgb(0x4A, 0x38, 0x28));
+
+        /// <summary>A local game screenshot from BGC_FIELD_BACKDROP, to judge the layer against the real table.</summary>
+        static IBrush FieldBackdrop => Environment.GetEnvironmentVariable("BGC_FIELD_BACKDROP") is { Length: > 0 } path
+            ? new ImageBrush(new Avalonia.Media.Imaging.Bitmap(path)) { Stretch = Stretch.UniformToFill }
+            : Backdrop;
 
         void Save(Window w, string file)
         {

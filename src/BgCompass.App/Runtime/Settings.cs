@@ -19,6 +19,10 @@ public sealed class AppSettings
     public bool PanelsVisible { get; set; } = true;
     public bool FirstRunDone { get; set; }
     public PanelState Overlay { get; set; } = new();
+    public bool FieldMarks { get; set; } = true;
+    public bool FieldGuides { get; set; }
+    public double FieldOffsetX { get; set; }
+    public double FieldOffsetY { get; set; }
 }
 
 /// <summary>settings.json. A damaged file means defaults, never a crash.</summary>

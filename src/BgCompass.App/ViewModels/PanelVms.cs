@@ -159,7 +159,7 @@ public sealed class HeroVm : ViewModelBase
             return;
         }
         Empty = "";
-        Offers = advice.Heroes
+        Offers = advice.Heroes.OrderBy(h => h.Option.ScreenSlot)
             .Select(h => new HeroOfferVm(h, h.Option.CardId == advice.RecommendedCardId, advice.RecommendationReason))
             .ToList();
     }
@@ -206,6 +206,15 @@ public sealed class HintPillVm(string label, string tip, bool alert)
     public bool IsAlert { get; } = alert;
 }
 
+/// <summary>Shop cards the top directions want now. The panel lists them, the game layer rings them.</summary>
+public static class BuildPicks
+{
+    public static IEnumerable<(CardRef Card, ArchetypeFit Direction)> Now(BoardAdvice a) =>
+        a.Directions.Take(3)
+            .SelectMany(d => d.MissingCoreNow.Concat(d.NextTierTargets).Where(c => c.InShop).Select(c => (Card: c, Direction: d)))
+            .DistinctBy(p => p.Card.CardId);
+}
+
 public sealed class BuildVm : ViewModelBase
 {
     BoardAdvice? _last;
@@ -242,8 +251,7 @@ public sealed class BuildVm : ViewModelBase
         var top = a.Directions.Take(3).ToList();
         var open = top.Any(d => d.Id == _expanded) ? _expanded : top.FirstOrDefault()?.Id;
         Directions = top.Select(d => new DirectionVm(d, d.Id == open, Toggle)).ToList();
-        Buy = top.SelectMany(d => d.MissingCoreNow.Concat(d.NextTierTargets)).Where(c => c.InShop)
-            .DistinctBy(c => c.CardId).Select(c => new CardChipVm(c)).ToList();
+        Buy = BuildPicks.Now(a).Select(p => new CardChipVm(p.Card)).ToList();
         var pills = new List<HintPillVm>();
         void Pill(string label, IReadOnlyList<AdviceLine> lines, bool alert = false)
         {

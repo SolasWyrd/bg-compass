@@ -13,20 +13,25 @@ public sealed class OverlayManager : IDisposable
 {
     readonly AppHost _host;
     readonly CompassVm _vm;
+    readonly FieldVm _fieldVm;
     readonly IGameWindowProbe _probe;
     readonly IHotkeys _hotkeys;
     readonly Func<PxRect> _screen;
     OverlayWindow? _window;
-    readonly DispatcherTimer _poll;
+    FieldWindow? _field;
+    readonly DispatcherTimer _poll, _cursor;
     GameWindowInfo _game;
     UiState _state = UiState.Initial;
     bool _wasShown;
 
-    public OverlayManager(AppHost host, CompassVm vm, IGameWindowProbe probe, IHotkeys hotkeys, Func<PxRect> screen)
+    public OverlayManager(AppHost host, CompassVm vm, FieldVm field, IGameWindowProbe probe, IHotkeys hotkeys, Func<PxRect> screen)
     {
-        _host = host; _vm = vm; _probe = probe; _hotkeys = hotkeys; _screen = screen;
+        _host = host; _vm = vm; _fieldVm = field; _probe = probe; _hotkeys = hotkeys; _screen = screen;
         _poll = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
         _poll.Tick += (_, _) => Poll();
+        // Only runs while the layer is on screen. Reading the cursor is one cheap call.
+        _cursor = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(80) };
+        _cursor.Tick += (_, _) => ReadCursor();
         vm.GameOver.Changed += Reconcile;
         host.Settings.Saved += OnSettingsSaved;
     }
@@ -62,6 +67,7 @@ public sealed class OverlayManager : IDisposable
     {
         var p = _host.Settings.Value.Overlay;
         p.X = p.Y = null;
+        _host.Settings.Value.FieldOffsetX = _host.Settings.Value.FieldOffsetY = 0;
         _host.Settings.Value.PanelsVisible = true;
         _host.Settings.Save();
     }
@@ -90,6 +96,7 @@ public sealed class OverlayManager : IDisposable
 
     void Reconcile()
     {
+        ReconcileField();
         try
         {
             var settings = _host.Settings.Value;
@@ -110,6 +117,42 @@ public sealed class OverlayManager : IDisposable
             _wasShown = true;
         }
         catch (Exception ex) { AppLog.Error("Панель не показалась", ex); }
+    }
+
+    void ReconcileField()
+    {
+        try
+        {
+            _fieldVm.SetWidth(_game.Found ? GameField.Width(_game.Rect) : 0);
+            _fieldVm.Apply(_state);
+            if (!(_game.Found && _game.ShouldShow && FieldRules.Visible(_state, _host.Settings.Value)))
+            {
+                _cursor.Stop();
+                _fieldVm.Hover(null, null);
+                if (_field is { IsVisible: true }) _field.Hide();
+                return;
+            }
+            _field ??= new FieldWindow(_fieldVm);
+            var appearing = !_field.IsVisible;
+            if (appearing) _field.Show();
+            _field.Follow(_game.Rect);
+            if (appearing)
+            {
+                Platform.RaiseTopmost(_field);
+                if (_window is { IsVisible: true }) Platform.RaiseTopmost(_window);
+            }
+            _cursor.Start();
+        }
+        catch (Exception ex) { AppLog.Error("Метки на поле не показались", ex); }
+    }
+
+    void ReadCursor()
+    {
+        if (Platform.CursorPosition() is not { } c) return;
+        var overPanel = _window is { IsVisible: true } w && new PxRect(w.Position.X, w.Position.Y, w.PhysicalSize.W, w.PhysicalSize.H).Contains(c.X, c.Y);
+        if (overPanel || !_game.Rect.Contains(c.X, c.Y)) { _fieldVm.Hover(null, null); return; }
+        var (x, y) = GameField.ToField(_game.Rect, c.X, c.Y);
+        _fieldVm.Hover(x, y);
     }
 
     double Scale()
@@ -154,9 +197,12 @@ public sealed class OverlayManager : IDisposable
     public void Dispose()
     {
         _poll.Stop();
+        _cursor.Stop();
         _host.Settings.Saved -= OnSettingsSaved;
         _hotkeys.Dispose();
         try { _window?.Close(); } catch { }
         _window = null;
+        try { _field?.Close(); } catch { }
+        _field = null;
     }
 }

@@ -14,7 +14,7 @@ Answer "what now?" in the current phase of a Battlegrounds game from the game's 
 A private tool, free and local. Not a product to sell or explain.
 
 ## Operating Context
-Dark transparent panels over a bright, busy game at any resolution. Never steals focus, never blocks clicks. One compact panel changes with the phase; anything else opens on demand.
+Dark transparent panels over a bright, busy game at any resolution. Never steals focus, never blocks clicks. One compact panel changes with the phase; marks on the game table point at the cards, heroes and seats themselves; anything else opens on demand.
 
 ## Capabilities and Constraints
 - Log file and card data only. No memory reading, code injection or input simulation.

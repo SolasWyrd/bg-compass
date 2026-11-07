@@ -41,6 +41,20 @@
       </Grid>
       <CheckBox Content="Сквозной режим" IsChecked="{Binding ClickThrough}" Margin="0,2"
                 ToolTip.Tip="Клики проходят сквозь панели в игру. Панели нельзя нажать и двигать, кроме верхней полосы. Переключается на Ctrl+Shift+T." />
+      <CheckBox Content="Метки на поле" IsChecked="{Binding FieldMarks}" Margin="0,2"
+                ToolTip.Tip="Рамки в магазине, числа над героями, племена у таблицы лидеров, шансы над полем. Клики всегда проходят в игру." />
+      <CheckBox Content="Показать разметку" IsChecked="{Binding FieldGuides}" Margin="0,2"
+                ToolTip.Tip="Рисует все ячейки магазина и таблицы лидеров. Если они не совпали с игрой, сдвиньте ползунками." />
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4" IsVisible="{Binding FieldGuides}">
+        <TextBlock Text="Сдвиг по X" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <Slider Grid.Column="1" Minimum="-80" Maximum="80" TickFrequency="1" Value="{Binding FieldOffsetX}" />
+        <TextBlock Grid.Column="2" Text="{Binding FieldOffsetXText}" VerticalAlignment="Center" Margin="12,0,0,0" MinWidth="44" />
+      </Grid>
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4" IsVisible="{Binding FieldGuides}">
+        <TextBlock Text="Сдвиг по Y" VerticalAlignment="Center" Margin="0,0,16,0" />
+        <Slider Grid.Column="1" Minimum="-80" Maximum="80" TickFrequency="1" Value="{Binding FieldOffsetY}" />
+        <TextBlock Grid.Column="2" Text="{Binding FieldOffsetYText}" VerticalAlignment="Center" Margin="12,0,0,0" MinWidth="44" />
+      </Grid>
       <Button Content="Сбросить положение панелей" Command="{Binding ResetPositions}" HorizontalAlignment="Left" Margin="0,6,0,0"
               ToolTip.Tip="Вернуть панели на места и показать все" />
 

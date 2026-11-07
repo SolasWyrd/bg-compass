@@ -330,6 +330,33 @@ public sealed class SettingsVm : ViewModelBase
         }
     }
 
+    public bool FieldMarks
+    {
+        get => _host.Settings.Value.FieldMarks;
+        set { if (_host.Settings.Value.FieldMarks == value) return; _host.Settings.Value.FieldMarks = value; _host.Settings.Save(); Raise(); }
+    }
+
+    public bool FieldGuides
+    {
+        get => _host.Settings.Value.FieldGuides;
+        set { if (_host.Settings.Value.FieldGuides == value) return; _host.Settings.Value.FieldGuides = value; _host.Settings.Save(); Raise(); }
+    }
+
+    public double FieldOffsetX
+    {
+        get => _host.Settings.Value.FieldOffsetX;
+        set { var v = Math.Round(value); if (v == _host.Settings.Value.FieldOffsetX) return; _host.Settings.Value.FieldOffsetX = v; _host.Settings.Save(); Raise(); Raise(nameof(FieldOffsetXText)); }
+    }
+
+    public double FieldOffsetY
+    {
+        get => _host.Settings.Value.FieldOffsetY;
+        set { var v = Math.Round(value); if (v == _host.Settings.Value.FieldOffsetY) return; _host.Settings.Value.FieldOffsetY = v; _host.Settings.Save(); Raise(); Raise(nameof(FieldOffsetYText)); }
+    }
+
+    public string FieldOffsetXText => $"{FieldOffsetX:0}";
+    public string FieldOffsetYText => $"{FieldOffsetY:0}";
+
     public string Eula { get; } = LoadEula();
 
     static string LoadEula()

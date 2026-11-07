@@ -53,7 +53,7 @@ public static class GameTag
 public static class TagValues
 {
     public const int ZonePlay = 1, ZoneDeck = 2, ZoneHand = 3, ZoneGraveyard = 4, ZoneRemoved = 5, ZoneSetAside = 6, ZoneSecret = 7;
-    public const int TypeGame = 1, TypePlayer = 2, TypeHero = 3, TypeMinion = 4, TypeSpell = 5, TypeEnchantment = 6, TypeHeroPower = 10;
+    public const int TypeGame = 1, TypePlayer = 2, TypeHero = 3, TypeMinion = 4, TypeSpell = 5, TypeEnchantment = 6, TypeHeroPower = 10, TypeTavernSpell = 42;
     public const int PlayPlaying = 1, PlayWinning = 4, PlayLosing = 5, PlayWon = 6, PlayLost = 7, PlayTied = 8, PlayDisconnected = 9, PlayConceded = 10;
     public const int StateRunning = 1, StateComplete = 2;
 
@@ -66,7 +66,7 @@ public static class TagValues
     public static int CardType(ReadOnlySpan<char> s) => s switch
     {
         "GAME" => TypeGame, "PLAYER" => TypePlayer, "HERO" => TypeHero, "MINION" => TypeMinion, "SPELL" => TypeSpell,
-        "ENCHANTMENT" => TypeEnchantment, "HERO_POWER" => TypeHeroPower, _ => Number(s),
+        "ENCHANTMENT" => TypeEnchantment, "HERO_POWER" => TypeHeroPower, "BATTLEGROUND_SPELL" => TypeTavernSpell, _ => Number(s),
     };
 
     public static int PlayState(ReadOnlySpan<char> s) => s switch

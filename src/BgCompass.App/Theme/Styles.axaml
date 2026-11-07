@@ -86,6 +86,63 @@
   <Style Selector="Border.pill:pointerover"><Setter Property="Background" Value="{StaticResource HoverBrush}" /></Style>
   <Style Selector="Border.pill TextBlock"><Setter Property="FontSize" Value="{StaticResource FontTiny}" /><Setter Property="TextWrapping" Value="NoWrap" /></Style>
 
+  <!-- Marks on the game table. Ink behind every word: the table is bright and busy. -->
+  <Style Selector="Border.fieldedge">
+    <Setter Property="BorderBrush" Value="{StaticResource InkBrush}" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="CornerRadius" Value="63" />
+  </Style>
+  <Style Selector="Border.fieldring">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+    <Setter Property="BorderThickness" Value="4" />
+    <Setter Property="CornerRadius" Value="61" />
+    <Setter Property="BoxShadow" Value="0 0 16 2 #80D2F24A" />
+  </Style>
+  <Style Selector="Border.fieldring.fact">
+    <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" />
+    <Setter Property="BoxShadow" Value="0 0 16 2 #80FFC24D" />
+  </Style>
+  <Style Selector="Border.fieldtag">
+    <Setter Property="Background" Value="{StaticResource SurfaceSolidBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="10,3" />
+  </Style>
+  <Style Selector="Border.fieldtag TextBlock">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="TextWrapping" Value="NoWrap" />
+  </Style>
+  <Style Selector="Border.fieldtag.card"><Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.fieldtag.card TextBlock"><Setter Property="Foreground" Value="{StaticResource AccentBrush}" /></Style>
+  <Style Selector="Border.fieldtag.fact"><Setter Property="Background" Value="{StaticResource WarnBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" /></Style>
+  <Style Selector="Border.fieldtag.fact TextBlock"><Setter Property="Foreground" Value="{StaticResource InkBrush}" /></Style>
+  <Style Selector="Border.fieldtag.next"><Setter Property="BorderBrush" Value="{StaticResource LossBrush}" /></Style>
+  <Style Selector="Border.fieldtag.old TextBlock"><Setter Property="Foreground" Value="{StaticResource TextDimBrush}" /></Style>
+  <Style Selector="Border.fieldhero">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusPanel}" />
+    <Setter Property="Padding" Value="8" />
+  </Style>
+  <Style Selector="Border.fieldhero.best"><Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" /><Setter Property="BorderThickness" Value="2" /></Style>
+  <Style Selector="Border.fieldguide">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="#22D2F24A" />
+  </Style>
+  <Style Selector="Border.fieldodds">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusPanel}" />
+    <Setter Property="Padding" Value="14,6" />
+    <Setter Property="MinHeight" Value="64" />
+  </Style>
+  <Style Selector="Border.fieldpopup"><Setter Property="Width" Value="264" /><Setter Property="Padding" Value="12,10" /></Style>
+
   <Style Selector="Border.beta">
     <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" />
     <Setter Property="BorderThickness" Value="1" />
